@@ -1,5 +1,7 @@
 # IZI
 
+[Leia em português](README.pt-BR.md)
+
 A [Claude Code](https://code.claude.com/docs/en/overview) plugin for solo
 developers. You decide what to build and approve the steps that matter.
 Claude writes the code and the tests, makes the commits and opens the PR.
