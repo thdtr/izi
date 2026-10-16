@@ -1,0 +1,11 @@
+{
+  "name": "izi",
+  "description": "Lean workflow for solo developers: kickoff, spec, build, fix and ship, with format hooks, a quick gate and secret scanning.",
+  "author": {
+    "name": "Thiago Dutra"
+  },
+  "homepage": "https://github.com/thiagorodriguesdutra/izi",
+  "repository": "https://github.com/thiagorodriguesdutra/izi",
+  "license": "MIT",
+  "keywords": ["workflow", "spec-driven-development", "tdd", "vertical-slices", "code-review", "sandbox", "solo-developer", "saas", "typescript", "nextjs"]
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "sonnet",
+  "env": {
+    "IZI_FORMAT": "pnpm exec prettier --write --ignore-unknown --log-level=silent",
+    "IZI_CHECK": "pnpm exec tsc --noEmit --incremental && pnpm exec eslint --max-warnings=0 --no-warn-ignored $IZI_CHANGED && pnpm exec vitest related --run --passWithNoTests $IZI_CHANGED",
+    "IZI_CODE_EXT": "ts,tsx,js,jsx,mjs,cjs"
+  },
+  "extraKnownMarketplaces": {
+    "izi": {
+      "source": {
+        "source": "github",
+        "repo": "thiagorodriguesdutra/izi"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "izi@izi": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh run view *)",
+      "Bash(gh run list *)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(gh pr merge *)",
+      "Bash(git reset --hard *)",
+      "Bash(rm -rf *)",
+      "Bash(*prisma migrate reset*)",
+      "Bash(*prisma db push*)",
+      "Bash(*prisma migrate deploy*)",
+      "Bash(*drizzle-kit push*)",
+      "Bash(*drizzle-kit migrate*)",
+      "Bash(*vercel *)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Read(./secrets/**)",
+      "Edit(./secrets/**)",
+      "Edit(./.env)",
+      "Edit(./.env.local)",
+      "Edit(./.env.*.local)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "filesystem": {
+      "allowWrite": ["~/.local/share/pnpm", "~/.cache/pnpm"]
+    },
+    "network": {
+      "allowedDomains": [
+        "registry.npmjs.org",
+        "github.com",
+        "api.github.com",
+        "codeload.github.com",
+        "objects.githubusercontent.com"
+      ]
+    },
+    "excludedCommands": [
+      "git push *",
+      "git pull *",
+      "git fetch *",
+      "gh pr *",
+      "gh run *"
+    ]
+  }
+}

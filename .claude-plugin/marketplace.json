@@ -1,0 +1,16 @@
+{
+  "name": "izi",
+  "description": "IZI: a lean Claude Code workflow for solo developers",
+  "owner": {
+    "name": "Thiago Dutra"
+  },
+  "plugins": [
+    {
+      "name": "izi",
+      "source": "./plugins/izi",
+      "description": "Spec by interview, build in slices with deterministic gates, independent review, and ship with CI.",
+      "category": "development",
+      "keywords": ["workflow", "spec-driven-development", "tdd", "vertical-slices", "code-review", "sandbox", "solo-developer", "saas", "typescript", "nextjs"]
+    }
+  ]
+}
