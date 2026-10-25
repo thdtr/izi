@@ -25,7 +25,7 @@ com Next.js). Se o projeto for em Go, Python ou outra linguagem, o
 Na sua máquina, uma vez só:
 
 ```bash
-claude plugin marketplace add thiagorodriguesdutra/izi
+claude plugin marketplace add thdtr/izi
 claude plugin install izi@izi
 ```
 

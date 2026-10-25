@@ -10,7 +10,7 @@
     "izi": {
       "source": {
         "source": "github",
-        "repo": "thiagorodriguesdutra/izi"
+        "repo": "thdtr/izi"
       },
       "autoUpdate": true
     }

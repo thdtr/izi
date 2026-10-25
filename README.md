@@ -26,7 +26,7 @@ project's commands.
 On your machine, once:
 
 ```bash
-claude plugin marketplace add thiagorodriguesdutra/izi
+claude plugin marketplace add thdtr/izi
 claude plugin install izi@izi
 ```
 
