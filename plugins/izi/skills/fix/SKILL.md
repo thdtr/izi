@@ -1,6 +1,7 @@
 ---
 name: fix
-description: Fixes a bug or makes a small change outside a spec - reproduces, finds the root cause, fixes and verifies. Use it for any bug, unexpected error, broken test or one-off tweak (text, styling, config).
+description: Use when something is broken - a bug, unexpected error or failing test. Reproduces, finds the root cause, fixes and verifies. Invoked as /izi:fix, it also takes a one-off tweak outside a spec.
+model: sonnet
 argument-hint: "bug symptom or the change you want"
 ---
 

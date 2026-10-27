@@ -7,8 +7,7 @@ costs tokens in every session, so keep only what changes behavior. -->
 ## Project
 
 - Product: <1 line>. Scope, architecture decisions and roadmap: `docs/PROJECT.md`.
-- Stack: <language, framework, package manager, database/ORM, auth, billing, hosting>
-- Structure: <main folders and what lives in each; where shared types live>
+- Stack: <only what the code doesn't show: hosting, where migrations run, external services>
 
 ## Commands
 
@@ -16,7 +15,7 @@ costs tokens in every session, so keep only what changes behavior. -->
 - Full gate: `<lint && typecheck && test && build>`
 - Single test: `<>`
 - E2E: `<>`
-- The quick gate (types, lint and tests for changed files) runs on its own at the end of every turn.
+- The quick gate (types, lint and tests for changed files) runs on its own before every commit and at the end of every turn.
 - Run each command on its own, without `cd`, pipes or `&&`: sandbox and permissions match on the command text.
 
 ## Project rules
@@ -35,12 +34,14 @@ costs tokens in every session, so keep only what changes behavior. -->
 
 - `EACCES`, `Read-only file system`, `Network is unreachable` or a blocked host in a command = sandbox limit, not a bug. Don't change code because of it: report the command and the path/host and propose the change in `.claude/settings.json`.
 - Files in `.claude/` only with Edit/Write, never through Bash.
+- Untracked entries at protected paths (`.bashrc`, `.mcp.json`, `.claude/hooks`...) that are empty, read-only or character devices are sandbox masks: ignore them and don't mention them. Stage files by name; never `git add .` or `git add -A`.
+- Package manager caches are allowed per machine, in each person's `~/.claude/settings.json` (`sandbox.filesystem.allowWrite`). A cache write blocked by the sandbox: propose the line for that file.
 
 ## Working
 
 - Branch `feat/<slug>` or `fix/<slug>`; never commit to main. Small commit per slice; the message describes the effect.
-- Feature with a spec: `docs/specs/<slug>.md` is the contract. Keep its checkboxes and `Notes` up to date.
-- When a step doesn't need me, keep going. Ask (AskUserQuestion) only when you can't move forward without me, or before something destructive.
+- Feature with a spec: `docs/specs/<slug>.md` is the contract. Keep its checkboxes and `Notes` up to date. A spec marked `Status: shipped` is a record of what was built; the code and tests are the truth.
+- Ask with AskUserQuestion when you can't move forward without me, or before something destructive.
 - Two failed attempts at the same problem: stop, record in `Notes` what you tried and what the evidence disproved, and suggest `/clear`.
 - Verification evidence = command run + result line, not the whole output.
 - End of a long run: three short headings (Blocked on me, Changed, Found).

@@ -47,7 +47,8 @@ abrir o seu app para conferir o resultado.
 
 ```text
 /izi:kickoff            1x por projeto: configura tudo e monta o roadmap   (Opus)
-/izi:spec "feature"  ✋ entrevista você e escreve docs/specs/<slug>.md     (Opus)
+/izi:spec "feature"  ✋ entrevista você e escreve docs/specs/<slug>.md;    (Opus)
+                        quem vai construir lê a spec e aponta o que falta
 /clear
 /izi:build <slug>       fatia por fatia: teste, código e commit;           (Sonnet)
                         no fim, uma revisão independente
@@ -78,7 +79,7 @@ só com a spec, sem arrastar a entrevista inteira junto.
 ```text
 AGENTS.md                 fatos do projeto que o Claude lê em toda sessão
 CLAUDE.md                 aponta para o AGENTS.md
-.claude/settings.json     modelo, comandos de checagem, permissões e sandbox
+.claude/settings.json     comandos de checagem, permissões e sandbox
 .claude/agents/Explore.md busca no código com um modelo mais barato
 .claude/rules/            regras de UI e de testes
 docs/PROJECT.md           produto, decisões de arquitetura e roadmap
@@ -100,8 +101,8 @@ Quer deixar uma anotação sua no `AGENTS.md`? Escreva entre `<!--` e
 | Quando | O quê |
 |---|---|
 | Depois de cada edição | O arquivo é formatado |
-| No fim de cada resposta que mexeu no código | Tipos, lint e os testes dos arquivos alterados são checados. Se algo falhar, o Claude corrige antes de parar |
-| Antes de cada commit | O gitleaks procura senhas e chaves no que vai entrar no commit |
+| Antes de cada commit | Tipos, lint e os testes dos arquivos alterados são checados, e o gitleaks procura senhas e chaves. Se algo falhar, o commit é bloqueado e o Claude corrige |
+| No fim de cada resposta que deixou código sem commit | A mesma checagem de tipos, lint e testes. Se algo falhar, o Claude corrige antes de parar |
 | Em cada PR | O CI roda tudo de novo |
 
 Se o Claude terminar a resposta com uma pergunta para você, a checagem
@@ -120,13 +121,15 @@ projeto usa outras ferramentas, o kickoff ajusta.
 |---|---|
 | kickoff e spec | Opus |
 | build, fix e ship | Sonnet |
+| Leitura da spec por quem vai construir | Sonnet |
 | Revisão do código contra a spec | Opus |
 | Busca no código | Haiku |
 
 O Opus entra onde tem decisão de arquitetura e de escopo. O resto roda no
 Sonnet, que sai mais barato. A revisão de bugs no fim do build usa o
 [`/code-review`](https://code.claude.com/docs/en/code-review-local) do
-próprio Claude Code.
+próprio Claude Code. Fora dos comandos do IZI, vale o modelo que cada
+pessoa escolheu no `/model`.
 
 ## Sandbox
 
@@ -148,10 +151,21 @@ não pedem permissão a cada passo. Por causa disso, algumas coisas mudam:
   ou "host not allowed" vêm do sandbox, não do seu código. O Claude foi
   instruído a dizer qual comando falhou e o que mudar no
   `.claude/settings.json`, sem mexer no código.
+- As pastas de cache do gerenciador de pacotes mudam conforme o sistema,
+  então ficam no `~/.claude/settings.json` de cada pessoa, em
+  `sandbox.filesystem.allowWrite`. O kickoff configura a sua máquina; quem
+  entrar depois no projeto adiciona as da própria máquina.
+- No Linux, enquanto um comando roda no sandbox, caminhos protegidos que
+  não existem (`.bashrc`, `.mcp.json`, `.claude/hooks`...) aparecem como
+  arquivos não rastreados. É um
+  [bug conhecido](https://github.com/anthropics/claude-code/issues/78419).
+  O `.gitignore` do kickoff esconde os da raiz, e o Claude é instruído a
+  ignorá-los e a adicionar arquivos ao commit pelo nome.
 
 | Se acontecer | Faça |
 |---|---|
 | O Claude pede acesso a um domínio novo | Aceite, ou adicione o domínio em `sandbox.network.allowedDomains` |
+| `pnpm install` falha com `EACCES` numa pasta de cache | Adicione a pasta em `sandbox.filesystem.allowWrite` no seu `~/.claude/settings.json`. A tabela em `plugins/izi/skills/kickoff/reference/sandbox.md` tem os caminhos de cada sistema |
 | O `pnpm` trava sem mostrar erro | A versão em `packageManager` no `package.json` não é a mesma que está instalada. Deixe as duas iguais |
 | O `pnpm install` falha num pacote que vem com pasta `.vscode/` | Rode você mesmo, no prompt do Claude: `! pnpm install` |
 | O "Yes, don't ask again" não fica salvo | Rode `claude doctor` e apague os arquivos de 0 byte que ele listar |
@@ -178,14 +192,27 @@ não pedem permissão a cada passo. Por causa disso, algumas coisas mudam:
 .claude-plugin/marketplace.json   marketplace "izi"
 plugins/izi/
   skills/      kickoff, spec, build, fix, ship
-  agents/      reviewer
+  agents/      reviewer, spec-check
   hooks/       hooks.json
   scripts/     scripts dos hooks
+  evals/       casos que medem o que o plugin acrescenta
 ```
 
 Para testar uma mudança sem publicar, rode
 `claude --plugin-dir ./plugins/izi`. Antes de publicar, rode
 `claude plugin validate .`.
+
+Os [evals](https://code.claude.com/docs/en/plugin-evals) rodam cada caso
+com e sem o plugin e mostram a diferença. Rode depois de mudar uma skill
+e quando sair um modelo novo:
+
+```bash
+cd plugins/izi
+claude plugin eval . --scaffold --allow-tools Edit "Bash(git *)"
+```
+
+Cada execução gasta do seu plano. Para testar só um caso, use
+`--case <nome>`.
 
 ## Licença
 

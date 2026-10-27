@@ -2,6 +2,7 @@
 name: build
 description: Implements the slices of an approved spec in docs/specs/, one at a time, with a test and a commit per slice, and finishes with an independent review.
 disable-model-invocation: true
+model: sonnet
 argument-hint: "spec slug (default: the one from the feat/<slug> branch)"
 ---
 
@@ -20,8 +21,8 @@ slices, or not on a `feat/` branch: stop and point to `/izi:spec`.
 1. Write or adjust the test that expresses the slice's behavior and watch
    it fail for the right reason.
 2. Implement the minimum to make it pass, following `AGENTS.md`. The
-   quick gate runs on its own at the end of the turn: fix whatever it
-   reports.
+   quick gate runs on its own before every commit and at the end of the
+   turn: fix whatever it reports.
 3. Run the slice's `Verification`. UI slice: check it in the running app
    (`run` skill), not just in the code.
 4. Check the box and commit `feat(<slug>): <observable effect>`, without

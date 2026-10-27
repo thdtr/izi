@@ -2,3 +2,19 @@
 !.env.example
 .claude/settings.local.json
 .claude/worktrees/
+
+# Claude Code sandbox masks for protected paths that don't exist (Linux/WSL2).
+# Git lists them as untracked and they break `git add .`. Remove this block
+# once https://github.com/anthropics/claude-code/issues/78419 is fixed; if the
+# project starts versioning one of these files, delete its line.
+/.gitconfig
+/.gitmodules
+/.bashrc
+/.bash_profile
+/.profile
+/.zshrc
+/.zprofile
+/.ripgreprc
+/.mcp.json
+/.vscode
+/.idea
