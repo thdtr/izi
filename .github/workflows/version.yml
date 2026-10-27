@@ -1,0 +1,57 @@
+name: version
+
+# Installed copies of the plugin update only when plugin.json's version
+# changes. This checks that a PR touching the plugin bumps it and records
+# it in CHANGELOG.md, and tags each new version once it lands on main.
+
+on:
+  pull_request:
+    paths:
+      - "plugins/izi/**"
+      - "!plugins/izi/evals/**"
+  push:
+    branches: [main]
+    paths:
+      - "plugins/izi/.claude-plugin/plugin.json"
+
+jobs:
+  bump:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Version bumped and in CHANGELOG.md
+        run: |
+          manifest=plugins/izi/.claude-plugin/plugin.json
+          base="$(git show "origin/${{ github.base_ref }}:$manifest" | jq -r '.version // empty')"
+          head="$(jq -r '.version // empty' "$manifest")"
+          if [[ -z "$head" || "$head" == "$base" ]]; then
+            echo "::error file=$manifest::The plugin changed but version is still '$base'. Bump it, or users won't get this change."
+            exit 1
+          fi
+          if ! grep -q "^## ${head//./\\.} " CHANGELOG.md; then
+            echo "::error file=CHANGELOG.md::No '## $head' section in CHANGELOG.md."
+            exit 1
+          fi
+          echo "version $base -> $head"
+
+  tag:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Tag the new version
+        run: |
+          tag="v$(jq -r '.version' plugins/izi/.claude-plugin/plugin.json)"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag already exists"
+            exit 0
+          fi
+          git tag "$tag"
+          git push origin "$tag"

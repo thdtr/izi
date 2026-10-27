@@ -177,7 +177,8 @@ of that:
 ## Maintenance
 
 - To update IZI, open `/plugin`, go to Marketplaces, pick `izi`, then
-  Update marketplace. Projects set up by kickoff update on their own. More
+  Update marketplace. Projects set up by kickoff update on their own.
+  What changed in each version is in [CHANGELOG.md](CHANGELOG.md). More
   in the [plugin docs](https://code.claude.com/docs/en/plugins/install).
 - When a new model comes out, run `/doctor prompt-audit` and delete the
   instructions the model already follows without being told. Extra
@@ -214,6 +215,20 @@ claude plugin eval . --scaffold --allow-tools Edit "Bash(git *)"
 
 Each run counts against your plan. To try a single case, add
 `--case <name>`.
+
+### Releasing
+
+Installed copies update only when `version` in
+`plugins/izi/.claude-plugin/plugin.json` changes, so a commit to `main`
+without a new version reaches no one.
+
+1. Bump `version` following [semver](https://semver.org/): patch for a
+   fix, minor for a new behavior, major when a project set up by kickoff
+   has to change.
+2. Add a `## <version> - <date>` section to [CHANGELOG.md](CHANGELOG.md).
+3. Run the evals and `claude plugin validate .`.
+4. Merge into `main`. CI creates the `v<version>` tag, and on a PR it
+   fails if the plugin changed without a new version.
 
 ## License
 

@@ -175,7 +175,8 @@ não pedem permissão a cada passo. Por causa disso, algumas coisas mudam:
 
 - Para atualizar o IZI, abra o `/plugin`, vá em Marketplaces, escolha
   `izi` e depois Update marketplace. Os projetos configurados pelo kickoff
-  se atualizam sozinhos. Mais detalhes na
+  se atualizam sozinhos. O que mudou em cada versão está no
+  [CHANGELOG.md](CHANGELOG.md). Mais detalhes na
   [documentação de plugins](https://code.claude.com/docs/en/plugins/install).
 - Quando sair um modelo novo, rode `/doctor prompt-audit` e apague as
   instruções que o modelo já segue sem precisar. Instrução sobrando só
@@ -213,6 +214,20 @@ claude plugin eval . --scaffold --allow-tools Edit "Bash(git *)"
 
 Cada execução gasta do seu plano. Para testar só um caso, use
 `--case <nome>`.
+
+### Como publicar uma versão
+
+As cópias instaladas só se atualizam quando o `version` em
+`plugins/izi/.claude-plugin/plugin.json` muda. Um commit no `main` sem
+versão nova não chega a ninguém.
+
+1. Suba o `version` seguindo [semver](https://semver.org/lang/pt-BR/):
+   patch para correção, minor para comportamento novo, major quando um
+   projeto configurado pelo kickoff precisa mudar.
+2. Adicione uma seção `## <versão> - <data>` no [CHANGELOG.md](CHANGELOG.md).
+3. Rode os evals e o `claude plugin validate .`.
+4. Faça o merge no `main`. O CI cria a tag `v<versão>` e, num PR, falha
+   se o plugin mudou sem versão nova.
 
 ## Licença
 
