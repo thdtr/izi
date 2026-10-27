@@ -1,5 +1,6 @@
 {
   "name": "izi",
+  "version": "1.0.0",
   "description": "Lean workflow for solo developers: kickoff, spec, build, fix and ship, with format hooks, a quick gate and secret scanning.",
   "author": {
     "name": "Thiago Dutra"

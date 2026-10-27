@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-# Stop: runs the project's quick gate ($IZI_CHECK) when a code file has
-# changed and hasn't been validated yet. Exit 2 sends the error back to Claude.
+# Runs the project's quick gate ($IZI_CHECK) when a code file has changed
+# and hasn't been validated yet. Registered on two events:
+#   PreToolUse (git commit)  a failure blocks the commit (exit 2); build and
+#                            fix commit inside the turn, so this is where
+#                            their changes get checked
+#   Stop                     covers what is left uncommitted; a failure goes
+#                            back to Claude as Stop hook feedback
 #
 # Variables (set in .claude/settings.json > env by /izi:kickoff):
 #   IZI_CHECK     shell command; receives IZI_CHANGED with the changed files
@@ -14,6 +19,7 @@ set -uo pipefail
 [[ -n "${IZI_CHECK:-}" ]] || exit 0
 
 input="$(cat)"
+event="$(jq -r '.hook_event_name // empty' <<<"$input")"
 cwd="$(jq -r '.cwd // empty' <<<"$input")"
 stop_hook_active="$(jq -r '.stop_hook_active // false' <<<"$input")"
 last_msg="$(jq -r '.last_assistant_message // empty' <<<"$input")"
@@ -21,7 +27,7 @@ last_msg="$(jq -r '.last_assistant_message // empty' <<<"$input")"
 # A turn that ends with a question to the user is not blocked: forcing it
 # to continue would make Claude "fix" things instead of asking.
 trimmed="${last_msg%"${last_msg##*[![:space:]]}"}"
-[[ "$trimmed" == *"?" ]] && exit 0
+[[ "$event" == "Stop" && "$trimmed" == *"?" ]] && exit 0
 
 root="$(git -C "${cwd:-.}" rev-parse --show-toplevel 2>/dev/null)" || exit 0
 cd "$root" || exit 0
@@ -62,8 +68,16 @@ if out="$(bash -c "$IZI_CHECK" 2>&1)"; then
 fi
 
 echo "$hash" >"$fail_file"
-{
+msg="$(
   echo "Quick gate failed (IZI_CHECK). Fix the cause; don't weaken tests or suppress errors."
   tail -n 60 <<<"$out"
-} >&2
+)"
+
+if [[ "$event" == "Stop" ]]; then
+  # The gate working as designed, not a hook error: additionalContext keeps
+  # Claude going with the same loop protections as a block.
+  jq -n --arg ctx "$msg" '{hookSpecificOutput: {hookEventName: "Stop", additionalContext: $ctx}}'
+  exit 0
+fi
+echo "$msg" >&2
 exit 2

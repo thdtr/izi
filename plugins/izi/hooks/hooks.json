@@ -21,6 +21,13 @@
             "if": "Bash(git commit *)",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/secrets.sh\"",
             "timeout": 60
+          },
+          {
+            "type": "command",
+            "if": "Bash(git commit *)",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/check.sh\"",
+            "timeout": 600,
+            "statusMessage": "izi: quick gate"
           }
         ]
       }

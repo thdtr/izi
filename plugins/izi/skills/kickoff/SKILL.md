@@ -76,8 +76,13 @@ there).
     Test both commands once before saving.
   - `sandbox`, `permissions.ask` and telemetry in `env` according to the
     reference and the answers from step 2. Remove `ask` lines for tools
-    the project doesn't use.
+    the project doesn't use. Only settings that hold on every OS go
+    here: the file is shared through git.
   - Keep `extraKnownMarketplaces` and `enabledPlugins` from the template.
+- `~/.claude/settings.json`, merged: the `sandbox.filesystem.allowWrite`
+  cache paths from the reference for this machine's OS. They depend on
+  the OS, so each person keeps their own; Claude Code merges them with
+  the project's settings.
 - `.claude/agents/Explore.md` from the template (exploration on Haiku).
 - `.claude/rules/tests.md` and, if there is UI, `.claude/rules/ui.md`:
   fill in the `<...>` and adjust `paths:` to the real structure.

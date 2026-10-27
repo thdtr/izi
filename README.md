@@ -48,7 +48,8 @@ to open your app to check the result.
 
 ```text
 /izi:kickoff            once per project: sets everything up, drafts the roadmap  (Opus)
-/izi:spec "feature"  ✋ interviews you and writes docs/specs/<slug>.md            (Opus)
+/izi:spec "feature"  ✋ interviews you and writes docs/specs/<slug>.md;           (Opus)
+                        the builder reads it and flags what's missing
 /clear
 /izi:build <slug>       slice by slice: test, code, commit;                       (Sonnet)
                         an independent review at the end
@@ -80,7 +81,7 @@ starts with just the spec instead of dragging the whole interview along.
 ```text
 AGENTS.md                 project facts Claude reads in every session
 CLAUDE.md                 points to AGENTS.md
-.claude/settings.json     model, check commands, permissions and sandbox
+.claude/settings.json     check commands, permissions and sandbox
 .claude/agents/Explore.md code search on a cheaper model
 .claude/rules/            UI and test rules
 docs/PROJECT.md           product, architecture decisions and roadmap
@@ -102,8 +103,8 @@ and `-->`. Claude never sees that part.
 | When | What |
 |---|---|
 | After every edit | The file gets formatted |
-| At the end of every reply that changed code | Types, lint and the tests for the changed files are checked. If something fails, Claude fixes it before stopping |
-| Before every commit | gitleaks scans what's about to be committed for passwords and keys |
+| Before every commit | Types, lint and the tests for the changed files are checked, and gitleaks scans for passwords and keys. If something fails, the commit is blocked and Claude fixes it |
+| At the end of every reply that left code uncommitted | The same types, lint and tests check. If something fails, Claude fixes it before stopping |
 | On every PR | CI runs everything again |
 
 If Claude ends its reply with a question for you, the check won't force
@@ -122,6 +123,7 @@ project uses other tools, kickoff adjusts them.
 |---|---|
 | kickoff and spec | Opus |
 | build, fix and ship | Sonnet |
+| Reading the spec as its builder | Sonnet |
 | Reviewing the code against the spec | Opus |
 | Code search | Haiku |
 
@@ -129,6 +131,7 @@ Opus is used where there are architecture and scope decisions to make.
 Everything else runs on Sonnet, which costs less. The bug review at the
 end of the build uses Claude Code's own
 [`/code-review`](https://code.claude.com/docs/en/code-review-local).
+Outside IZI's commands, each person's own `/model` choice applies.
 
 ## Sandbox
 
@@ -151,10 +154,21 @@ of that:
   or "host not allowed" come from the sandbox, not from your code. Claude
   is told to say which command failed and what to change in
   `.claude/settings.json`, without touching the code.
+- Package manager cache folders depend on the OS, so they live in each
+  person's `~/.claude/settings.json`, under
+  `sandbox.filesystem.allowWrite`. Kickoff sets up your machine; whoever
+  joins the project later adds their own.
+- On Linux, while a command runs in the sandbox, protected paths that
+  don't exist (`.bashrc`, `.mcp.json`, `.claude/hooks`...) show up as
+  untracked files. It's a
+  [known bug](https://github.com/anthropics/claude-code/issues/78419).
+  Kickoff's `.gitignore` hides the ones at the root, and Claude is told
+  to ignore them and to stage files by name.
 
 | If this happens | Do this |
 |---|---|
 | Claude asks for access to a new domain | Accept it, or add the domain to `sandbox.network.allowedDomains` |
+| `pnpm install` fails with `EACCES` on a cache folder | Add the folder to `sandbox.filesystem.allowWrite` in your `~/.claude/settings.json`. The table in `plugins/izi/skills/kickoff/reference/sandbox.md` has the paths for each OS |
 | `pnpm` hangs with no error | The `packageManager` version in `package.json` doesn't match the installed one. Make them match |
 | `pnpm install` fails on a package that ships a `.vscode/` folder | Run it yourself in the Claude prompt: `! pnpm install` |
 | "Yes, don't ask again" doesn't stick | Run `claude doctor` and delete the 0-byte files it lists |
@@ -163,7 +177,8 @@ of that:
 ## Maintenance
 
 - To update IZI, open `/plugin`, go to Marketplaces, pick `izi`, then
-  Update marketplace. Projects set up by kickoff update on their own. More
+  Update marketplace. Projects set up by kickoff update on their own.
+  What changed in each version is in [CHANGELOG.md](CHANGELOG.md). More
   in the [plugin docs](https://code.claude.com/docs/en/plugins/install).
 - When a new model comes out, run `/doctor prompt-audit` and delete the
   instructions the model already follows without being told. Extra
@@ -179,14 +194,41 @@ of that:
 .claude-plugin/marketplace.json   the "izi" marketplace
 plugins/izi/
   skills/      kickoff, spec, build, fix, ship
-  agents/      reviewer
+  agents/      reviewer, spec-check
   hooks/       hooks.json
   scripts/     hook scripts
+  evals/       cases that measure what the plugin adds
 ```
 
 To try a change without publishing it, run
 `claude --plugin-dir ./plugins/izi`. Before publishing, run
 `claude plugin validate .`.
+
+The [evals](https://code.claude.com/docs/en/plugin-evals) run each case
+with and without the plugin and show the difference. Run them after
+changing a skill and when a new model comes out:
+
+```bash
+cd plugins/izi
+claude plugin eval . --scaffold --allow-tools Edit "Bash(git *)"
+```
+
+Each run counts against your plan. To try a single case, add
+`--case <name>`.
+
+### Releasing
+
+Installed copies update only when `version` in
+`plugins/izi/.claude-plugin/plugin.json` changes, so a commit to `main`
+without a new version reaches no one.
+
+1. Bump `version` following [semver](https://semver.org/): patch for a
+   fix, minor for a new behavior, major when a project set up by kickoff
+   has to change.
+2. Add a `## <version> - <date>` section to [CHANGELOG.md](CHANGELOG.md).
+3. Run the evals and `claude plugin validate .`.
+4. Merge into `main`. CI creates the `v<version>` tag, and on a PR it
+   fails if the plugin changed without a new version.
 
 ## License
 

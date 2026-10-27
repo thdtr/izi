@@ -78,11 +78,19 @@ Slice rules:
 - Record decisions and signatures, not code: the implementation is
   build's job.
 
-## 4. Approval
+## 4. Builder check
+
+Delegate to the `izi:spec-check` subagent, passing the spec path, and
+wait for its answer in this turn. `detail` items: decide and record them
+in `Decisions`. `decision` items go to the user in the approval round.
+
+## 5. Approval
 
 Show the file path and a 5-10 line summary (slices + decisions the user
-didn't make explicitly) and, in the same turn, ask for approval with
-`AskUserQuestion` (approve | adjust). Adjustments: edit and ask again.
+didn't make explicitly) and, in the same turn, ask with
+`AskUserQuestion`: the open `decision` items, if any, and approval
+(approve | adjust), up to 4 questions per call. Record the answers in
+the spec. Adjustments: edit and ask again.
 
 Once approved: update main (`git switch main`, then `git pull` if there
 is a remote), `git switch -c feat/<slug>`, commit the spec

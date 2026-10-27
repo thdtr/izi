@@ -1,7 +1,10 @@
 # Sandbox profile per stack
 
 Reference for /izi:kickoff to adjust `sandbox`, `env` and `permissions`
-in `.claude/settings.json`. The template already covers pnpm + GitHub.
+in `.claude/settings.json`. The template already covers the pnpm and
+GitHub domains. `allowWrite` cache paths depend on the OS, so they go to
+the user's `~/.claude/settings.json`, which Claude Code merges with the
+project's.
 
 ## Facts behind the profile
 
@@ -28,16 +31,24 @@ in `.claude/settings.json`. The template already covers pnpm + GitHub.
   without arguments. An excluded command goes through the normal
   permission flow.
 - Prefer `allowWrite`/`allowedDomains` over excluding a whole command.
+- On Linux and WSL2, a protected path that doesn't exist (`.bashrc`,
+  `.mcp.json`, `.vscode`, `.claude/hooks`...) shows up inside the sandbox
+  as a character device: git lists it as untracked and `git add .` fails.
+  The `.gitignore` template covers the root ones; the rest is handled by
+  staging files by name.
 
 ## Package manager
+
+`allowWrite` goes to `~/.claude/settings.json`; `allowedDomains` to the
+project's settings.
 
 | PM | `allowWrite` | `allowedDomains` |
 |---|---|---|
 | pnpm | `~/.local/share/pnpm`, `~/.cache/pnpm` (macOS: `~/Library/pnpm`, `~/Library/Caches/pnpm`) | `registry.npmjs.org` |
 | npm | `~/.npm` | `registry.npmjs.org` |
-| yarn | `~/.cache/yarn`, `~/.yarn` | `registry.yarnpkg.com`, `registry.npmjs.org` |
+| yarn | `~/.cache/yarn`, `~/.yarn` (macOS: `~/Library/Caches/Yarn`, `~/.yarn`) | `registry.yarnpkg.com`, `registry.npmjs.org` |
 | bun | `~/.bun/install/cache` | `registry.npmjs.org` |
-| Go | `~/go/pkg/mod`, `~/.cache/go-build` | `proxy.golang.org`, `sum.golang.org` |
+| Go | `~/go/pkg/mod`, `~/.cache/go-build` (macOS: `~/go/pkg/mod`, `~/Library/Caches/go-build`) | `proxy.golang.org`, `sum.golang.org` |
 | Python (uv) | `~/.cache/uv`, `~/.local/share/uv` | `pypi.org`, `files.pythonhosted.org` |
 
 pnpm with `packageManager` pinned to a different version can hang
@@ -51,7 +62,7 @@ silently in the sandbox: match the installed version to the one in
 | Next.js | `env`: `NEXT_TELEMETRY_DISABLED=1`. `next/font/google` at build time: `fonts.googleapis.com`, `fonts.gstatic.com` |
 | Turborepo | `env`: `TURBO_TELEMETRY_DISABLED=1` |
 | Prisma | `allowWrite`: `~/.cache/prisma`; `allowedDomains`: `binaries.prisma.sh`; `env`: `CHECKPOINT_DISABLE=1` |
-| Playwright | `allowWrite`: `~/.cache/ms-playwright`; e2e in `excludedCommands` (browser inside the sandbox and server on the host) |
+| Playwright | `allowWrite`: `~/.cache/ms-playwright` (macOS: `~/Library/Caches/ms-playwright`); e2e in `excludedCommands` (browser inside the sandbox and server on the host) |
 | Docker / docker compose | Incompatible: `excludedCommands` with the exact subcommand, e.g. `docker compose *` |
 | Local database (Postgres/Redis in a container) | Tests that connect to it go in `excludedCommands` (e.g. `pnpm test *`), or use an in-process database in tests (PGlite, SQLite) and keep them in the sandbox |
 | Vercel CLI | Already `ask`; `allowedDomains`: `api.vercel.com`, `vercel.com` |

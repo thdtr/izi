@@ -2,6 +2,7 @@
 name: ship
 description: Wraps up the current branch - pending review, records, push, PR, CI and, if asked, production deploy.
 disable-model-invocation: true
+model: sonnet
 argument-hint: "[prod] to also promote to production"
 ---
 
@@ -16,14 +17,18 @@ argument-hint: "[prod] to also promote to production"
 - `fix/` branch: invoke the `code-review` skill with `low` and fix the
   blockers.
 - Diff touches auth, sessions, permissions, billing, webhooks or uploads:
-  also invoke `security-review` and fix what's real.
+  with an `origin` remote, also invoke `security-review` (it compares
+  against origin's default branch) and fix what's real. Without one, say
+  the security review was skipped and why.
 - Full gate from `AGENTS.md`: run it only if it hasn't passed on this
   HEAD in this session. Failed: fix via `izi:fix`.
 
 ## 2. Records
 
+`feat/` branch: add `Status: shipped` on the line below the spec's
+title, so it reads as a record of what was built, not a live contract.
 If the spec references a `Roadmap` item in `docs/PROJECT.md`, mark it
-`[x]` and commit `docs: roadmap <slug>`.
+`[x]`. Commit `docs: ship <slug>`.
 
 ## 3. PR
 
