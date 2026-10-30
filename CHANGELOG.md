@@ -3,6 +3,32 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.1.0 - 2026-10-30
+
+### Added
+
+- Commits made through the PowerShell tool go through the secret scan and
+  the quick gate, like Bash commits.
+- Kickoff's `settings.json` repeats the Bash permission rules for
+  PowerShell (force push denied; push, merge and `reset --hard` ask), so
+  they hold on Windows too. Existing projects: copy the `PowerShell(...)`
+  lines from the template into `.claude/settings.json`.
+- README: "Windows and the desktop app", installing from the desktop app,
+  and the one-time install for someone joining a project.
+
+### Fixed
+
+- The quick gate and the secret scan could block a command that isn't a
+  commit: Claude Code runs a hook's `if` filter on a best-effort basis
+  and fires it for any command with `$VAR`, `$()` or a loop. Both scripts
+  now check that the command really runs `git commit`. Found on Windows,
+  but it happened on every OS.
+
+### Changed
+
+- README: auto-update is off by default for this marketplace; it says how
+  to turn it on instead of promising it.
+
 ## 1.0.1 - 2026-10-30
 
 ### Fixed

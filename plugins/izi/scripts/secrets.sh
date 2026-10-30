@@ -11,8 +11,16 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 0
 fi
 
+input="$(cat)"
 # tr: jq.exe inside Git Bash ends lines with CRLF.
-cwd="$(jq -r '.cwd // empty' | tr -d '\r')"
+cwd="$(jq -r '.cwd // empty' <<<"$input" | tr -d '\r')"
+cmd="$(jq -r '.tool_input.command // empty' <<<"$input" | tr -d '\r')"
+
+# Only a real git commit: the hook's "if" filter is best-effort and also
+# fires for commands with $VAR, $() or loops.
+commit_re='(^|[;&|[:space:](])git[[:space:]]([^;&|]*[[:space:]])?commit([[:space:];&|)]|$)'
+[[ -z "$cmd" || "$cmd" =~ $commit_re ]] || exit 0
+
 root="$(git -C "${cwd:-.}" rev-parse --show-toplevel 2>/dev/null)" || exit 0
 cd "$root" || exit 0
 

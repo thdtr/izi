@@ -33,6 +33,14 @@ cwd="$(jqr '.cwd // empty' <<<"$input")"
 stop_hook_active="$(jqr '.stop_hook_active // false' <<<"$input")"
 last_msg="$(jqr '.last_assistant_message // empty' <<<"$input")"
 
+# Before a tool call, only a real git commit is gated. The hook's "if" filter
+# is best-effort: Claude Code also runs it for commands with $VAR, $() or loops.
+if [[ "$event" == "PreToolUse" ]]; then
+  cmd="$(jqr '.tool_input.command // empty' <<<"$input")"
+  commit_re='(^|[;&|[:space:](])git[[:space:]]([^;&|]*[[:space:]])?commit([[:space:];&|)]|$)'
+  [[ -z "$cmd" || "$cmd" =~ $commit_re ]] || exit 0
+fi
+
 # A turn that ends with a question to the user is not blocked: forcing it
 # to continue would make Claude "fix" things instead of asking.
 trimmed="${last_msg%"${last_msg##*[![:space:]]}"}"

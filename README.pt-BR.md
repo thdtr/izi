@@ -20,6 +20,8 @@ com Next.js). Se o projeto for em Go, Python ou outra linguagem, o
 | [bubblewrap](https://github.com/containers/bubblewrap) e [socat](http://www.dest-unreach.org/socat/) | Só no Linux. O [sandbox do Claude Code](https://code.claude.com/docs/en/sandboxing) precisa deles |
 | [gitleaks](https://github.com/gitleaks/gitleaks) (opcional) | Procura senhas e chaves antes de cada commit. Sem ele, essa checagem só roda no CI |
 
+No Windows, veja [Windows e o app desktop](#windows-e-o-app-desktop).
+
 ## Instalação
 
 Na sua máquina, uma vez só:
@@ -28,6 +30,13 @@ Na sua máquina, uma vez só:
 claude plugin marketplace add thdtr/izi
 claude plugin install izi@izi
 ```
+
+No app desktop, não precisa do terminal. Numa sessão local, digite
+`/plugin marketplace add thdtr/izi` na caixa de mensagem, aceite e
+adicione o plugin `izi` pelos botões que aparecem (ou depois, pelo **+**
+ao lado da caixa de mensagem e **Add plugins**). O terminal e o app
+desktop usam as mesmas configurações de plugins, então instalar em um
+basta.
 
 Em cada projeto, novo ou já em andamento, abra o Claude na pasta dele e
 rode:
@@ -42,6 +51,11 @@ seu ok. No fim, avisa se vale instalar o
 [plugin de LSP](https://code.claude.com/docs/en/plugins/code-intelligence)
 da sua linguagem e rodar `/run-skill-generator`, que ensina o Claude a
 abrir o seu app para conferir o resultado.
+
+Vai entrar num projeto que já usa o IZI? O `.claude/settings.json` dele
+liga o plugin, mas não baixa. Adicione o marketplace e rode
+`claude plugin install izi@izi --scope project` uma vez, ou, no app
+desktop, instale o `izi` escolhendo o escopo do projeto.
 
 ## Como funciona
 
@@ -66,7 +80,7 @@ só com a spec, sem arrastar a entrevista inteira junto.
 | Situação | Use |
 |---|---|
 | Feature que envolve decisão sobre dados, permissão ou tela | `/izi:spec`, depois `/izi:build` e `/izi:ship` |
-| Mudança pequena que mexe em mais de um arquivo | [Plan mode](https://code.claude.com/docs/en/permission-modes) (`Shift+Tab`) e peça direto |
+| Mudança pequena que mexe em mais de um arquivo | [Plan mode](https://code.claude.com/docs/en/permission-modes) (`Shift+Tab`, ou o seletor de modo no app desktop) e peça direto |
 | Bug, teste quebrado ou ajuste pontual | `/izi:fix "o que está acontecendo"` |
 | Mudança trivial, como um texto ou erro de digitação | Peça direto |
 | Refactor mecânico em vários arquivos | [`/batch`](https://code.claude.com/docs/en/commands) |
@@ -171,11 +185,36 @@ não pedem permissão a cada passo. Por causa disso, algumas coisas mudam:
 | O "Yes, don't ask again" não fica salvo | Rode `claude doctor` e apague os arquivos de 0 byte que ele listar |
 | Um comando que você excluiu continua rodando no sandbox | Peça para o Claude rodar só esse comando, sem `cd`, pipe ou `&&` |
 
+## Windows e o app desktop
+
+O IZI roda no Windows nativo, no terminal e no app desktop.
+
+- Instale o [Git for Windows](https://git-scm.com/download/win): os hooks
+  do IZI rodam no Git Bash dele. Depois, instale o jq com
+  `winget install jqlang.jq`. Se o Claude Code não achar o Git Bash
+  sozinho, aponte a `CLAUDE_CODE_GIT_BASH_PATH` para o `bash.exe` dele
+  (normalmente `C:\Program Files\Git\bin\bash.exe`).
+- Os dois precisam estar no `PATH` das variáveis de ambiente do usuário
+  ou do sistema. O app desktop não lê o perfil do PowerShell; depois de
+  mudar o `PATH`, feche e abra o app de novo.
+- O Windows nativo não tem sandbox, então os comandos pedem permissão com
+  mais frequência. O modo Auto corta a maior parte desses pedidos.
+- Commits feitos pela ferramenta PowerShell passam pelas mesmas checagens
+  do Bash, e as mesmas regras de permissão valem.
+- No app desktop, os plugins carregam em sessões locais e SSH, não em
+  sessões WSL nem na nuvem. Os comandos `/izi:` funcionam igual; troque
+  de modo pelo seletor embaixo da caixa de mensagem em vez do `Shift+Tab`.
+- O WSL2 também funciona e tem sandbox, como no Linux. Use-o pelo
+  terminal, já que o app desktop não carrega plugins lá. Deixe o
+  repositório dentro do WSL (`~/`), não em `/mnt/c`.
+
 ## Manutenção
 
 - Para atualizar o IZI, abra o `/plugin`, vá em Marketplaces, escolha
-  `izi` e depois Update marketplace. Os projetos configurados pelo kickoff
-  se atualizam sozinhos. O que mudou em cada versão está no
+  `izi` e depois Update marketplace. Em marketplaces como este, a
+  atualização automática vem desligada; para ligar, escolha **Enable
+  auto-update** na mesma tela. Cada pessoa faz isso na própria máquina. O
+  que mudou em cada versão está no
   [CHANGELOG.md](CHANGELOG.md). Mais detalhes na
   [documentação de plugins](https://code.claude.com/docs/en/plugins/install).
 - Quando sair um modelo novo, rode `/doctor prompt-audit` e apague as
