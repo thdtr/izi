@@ -13,7 +13,9 @@ Feature: $ARGUMENTS
 
 This skill runs on Opus only until the end of this turn: the interview
 and the approval go through `AskUserQuestion`, never by waiting for a
-free-text reply.
+free-text reply. If `AskUserQuestion` isn't available (`claude -p`, another harness),
+ask the same questions as text, at most 4, and stop until they're
+answered.
 
 ## 1. Context before asking
 

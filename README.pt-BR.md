@@ -1,315 +1,161 @@
 # IZI
 
-Plugin do [Claude Code](https://code.claude.com/docs/en/overview) para
-quem desenvolve sozinho. Você decide o que construir e aprova as etapas
-importantes. O Claude escreve o código e os testes, faz os commits e abre
-o PR.
+[Read in English](README.md)
 
-Os padrões já vêm prontos para TypeScript (Node.js ou Bun, normalmente
-com Next.js). Se o projeto for em Go, Python ou outra linguagem, o
-`/izi:kickoff` troca os comandos pelos do seu projeto.
+O IZI é um plugin para o [Claude Code](https://code.claude.com/docs/en/overview)
+que dá a quem programa um jeito curto e repetível de construir software
+com o Claude. Você decide o que vai ser feito e aprova os passos que
+importam. O Claude escreve o código e os testes, faz os commits e abre o
+PR. Continua funcionando quando entra uma segunda pessoa no projeto.
 
-## Antes de instalar
+## O que você precisa
 
-| Ferramenta | Para que serve aqui |
+| Ferramenta | Para quê |
 |---|---|
-| [Claude Code](https://code.claude.com/docs/en/quickstart), versão atual | É onde o IZI roda |
-| [git](https://git-scm.com/) | Branches e commits |
-| [jq](https://jqlang.org/) | Os hooks do IZI leem o JSON que o Claude Code manda para eles. Sem ele, a formatação, o quick gate e a busca por segredos são pulados com um aviso |
-| [GitHub CLI (`gh`)](https://cli.github.com/) | Abrir PR e acompanhar o CI. Depois de instalar, rode `gh auth login` e [`gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git) |
-| [bubblewrap](https://github.com/containers/bubblewrap) e [socat](http://www.dest-unreach.org/socat/) | Só no Linux. O [sandbox do Claude Code](https://code.claude.com/docs/en/sandboxing) precisa deles |
-| [gitleaks](https://github.com/gitleaks/gitleaks) (opcional) | Procura senhas e chaves antes de cada commit. Sem ele, essa checagem só roda no CI |
+| [Claude Code](https://code.claude.com/docs/en/quickstart), no terminal ou no app desktop | É onde o IZI roda |
+| [git](https://git-scm.com/) e [GitHub CLI](https://cli.github.com/) | Branches, commits e PRs. Rode `gh auth login` uma vez |
+| [jq](https://jqlang.org/) | Os hooks usam para ler o que o Claude Code manda para eles |
+| [bubblewrap](https://github.com/containers/bubblewrap) e [socat](http://www.dest-unreach.org/socat/), no Linux | O sandbox precisa deles |
+| [gitleaks](https://github.com/gitleaks/gitleaks), opcional | Procura senhas e chaves antes de cada commit |
 
-No Windows, veja [Windows e o app desktop](#windows-e-o-app-desktop).
+No Windows você também precisa do Git for Windows. Tem uma seção sobre
+isso mais abaixo.
 
 ## Instalação
 
-Na sua máquina, uma vez só:
+Num terminal, uma vez por máquina
 
 ```bash
 claude plugin marketplace add thdtr/izi
 claude plugin install izi@izi
 ```
 
-No app desktop, não precisa do terminal. Numa sessão local, digite
-`/plugin marketplace add thdtr/izi` na caixa de mensagem, aceite e
-adicione o plugin `izi` pelos botões que aparecem (ou depois, pelo **+**
-ao lado da caixa de mensagem e **Add plugins**). O terminal e o app
-desktop usam as mesmas configurações de plugins, então instalar em um
-basta.
+No app desktop não precisa de terminal. Abra uma sessão local, digite
+`/plugin marketplace add thdtr/izi`, aceite e instale o `izi` pelos
+botões que aparecerem.
 
-Em cada projeto, novo ou já em andamento, abra o Claude na pasta dele e
-rode:
+Depois abra o Claude na pasta do projeto e rode `/izi:kickoff`. Ele lê o
+que já existe, pergunta só o que não consegue descobrir sozinho, mostra
+tudo o que pretende mudar e espera o seu ok antes de escrever qualquer
+coisa. Se o projeto usava outro jeito de trabalhar (regras do Cursor, uma
+pasta de planos, instruções de outro agente), ele diz para onde vai cada
+coisa e apaga as sobras num commit separado, que dá para desfazer.
 
-```text
-/izi:kickoff
-```
+Vai entrar num projeto que já usa o IZI? Instale o plugin com
+`claude plugin install izi@izi --scope project`, ou escolha o escopo do
+projeto no app desktop, e rode `/izi:kickoff`. Ele só configura a sua
+máquina.
 
-O kickoff lê o que já existe no projeto e só pergunta o que falta. Num
-projeto que usava outro workflow (regras do Cursor, uma pasta de planos,
-instruções de outro agente), ele lista cada arquivo e para onde vai o
-conteúdo: `AGENTS.md`, as regras de negócio e o roadmap do
-`docs/PROJECT.md`, ou o lixo. A remoção vai num commit separado, para você
-poder desfazer só ela. Antes
-de criar qualquer arquivo, ele mostra a lista do que vai fazer e espera o
-seu ok. No fim, avisa se vale instalar o
-[plugin de LSP](https://code.claude.com/docs/en/plugins/code-intelligence)
-da sua linguagem e rodar `/run-skill-generator`, que ensina o Claude a
-abrir o seu app para conferir o resultado.
-
-Vai entrar num projeto que já usa o IZI? O `.claude/settings.json` dele
-liga o plugin, mas não baixa. Adicione o marketplace e rode
-`claude plugin install izi@izi --scope project` uma vez, ou, no app
-desktop, instale o `izi` escolhendo o escopo do projeto. Depois, rode o
-`/izi:kickoff`: num projeto que já tem o IZI, ele só configura a sua
-máquina e não mexe nos arquivos commitados.
-
-## Como funciona
+## O fluxo
 
 ```text
-/izi:kickoff            1x por projeto: configura tudo e monta o roadmap   (Opus)
-/izi:spec "feature"  ✋ entrevista você e escreve docs/specs/<slug>.md;    (Opus)
-                        quem vai construir lê a spec e aponta o que falta
+/izi:kickoff          uma vez por projeto
+/izi:spec "feature"   o Claude te entrevista e escreve docs/specs/<slug>.md, você aprova
 /clear
-/izi:build <slug>       fatia por fatia: teste, código e commit;           (Sonnet)
-                        no fim, uma revisão independente
-/izi:ship [prod]     ✋ abre o PR e acompanha o CI; o merge fica com você
+/izi:build <slug>     fatia por fatia, com teste e commit em cada uma, e no fim uma revisão independente
+/izi:ship             abre o PR e espera o CI, o merge fica com você
 ```
 
-O ✋ marca onde o Claude para e espera por você: na aprovação da spec e
-no merge do PR. No resto ele segue sozinho, e você revisa tudo no PR.
-
-O `/clear` entre a spec e o build limpa a conversa. Assim o build começa
-só com a spec, sem arrastar a entrevista inteira junto.
+O Claude só para e espera por você na aprovação da spec e no merge. O
+resto você revisa no PR.
 
 ## Qual comando usar
 
 | Situação | Use |
 |---|---|
-| Feature que envolve decisão sobre dados, permissão ou tela | `/izi:spec`, depois `/izi:build` e `/izi:ship` |
-| Mudança pequena que mexe em mais de um arquivo | [Plan mode](https://code.claude.com/docs/en/permission-modes) (`Shift+Tab`, ou o seletor de modo no app desktop) e peça direto |
-| Bug, teste quebrado ou ajuste pontual | `/izi:fix "o que está acontecendo"` |
-| Trabalhar a partir de uma issue do GitHub | `/izi:spec #42` para uma feature, `/izi:fix #57` para um bug |
-| O que vem a seguir no roadmap | `/izi:spec` sem argumento |
-| Mudança trivial, como um texto ou erro de digitação | Peça direto |
-| Refactor mecânico em vários arquivos | [`/batch`](https://code.claude.com/docs/en/commands) |
-| Limpar o código que mudou | [`/simplify`](https://code.claude.com/docs/en/commands) |
-| Duas features ao mesmo tempo | [`claude -w <nome>`](https://code.claude.com/docs/en/worktrees) |
-| Implementar as fatias sem ficar olhando | [`/goal`](https://code.claude.com/docs/en/goal) `todas as fatias de docs/specs/<slug>.md marcadas e o gate completo sai com 0` |
+| Uma feature com decisão sobre dados, permissões ou tela | `/izi:spec`, depois `/izi:build` e `/izi:ship` |
+| Um bug, um teste quebrado ou um ajuste pontual | `/izi:fix "o que está acontecendo"` |
+| Trabalhar a partir de uma issue do GitHub | `/izi:spec #42` ou `/izi:fix #57` |
+| Ver o que vem a seguir no roadmap | `/izi:spec` sozinho |
+| Uma mudança pequena em poucos arquivos | [Plan mode](https://code.claude.com/docs/en/permission-modes) e peça direto |
+| Um erro de digitação ou de texto | Peça direto |
 
-## Arquivos que o kickoff cria
+## O que acontece sozinho
 
-```text
-AGENTS.md                 fatos do projeto que o Claude lê em toda sessão
-CLAUDE.md                 aponta para o AGENTS.md
-.claude/settings.json     comandos de checagem, permissões e sandbox
-.claude/agents/Explore.md busca no código com um modelo mais barato
-.claude/rules/            regras de UI e de testes
-docs/PROJECT.md           produto, decisões de arquitetura e roadmap
-docs/DESIGN.md            cores, tipografia e padrões visuais (opcional)
-docs/specs/<slug>.md      uma spec por feature, escrita pelo /izi:spec
-.dependency-cruiser.cjs   regras de arquitetura que o lint confere (TS)
-.github/workflows/ci.yml  lint, typecheck, testes, build e busca de segredos
-.gitattributes            mantém os scripts de shell em LF no Windows
-```
+Todo arquivo editado é formatado. Antes de cada commit são checados os
+tipos, o lint e os testes do que mudou, e o gitleaks procura segredos. Se
+algo falha, o commit é bloqueado e o Claude corrige. A mesma checagem
+roda quando uma resposta deixa código sem commit, a não ser que ela
+termine com uma pergunta para você. O CI roda tudo de novo em cada PR.
 
-As regras de arquitetura usam o
-[dependency-cruiser](https://github.com/sverweij/dependency-cruiser), e o
-CI roda no [GitHub Actions](https://docs.github.com/en/actions).
+Os comandos ficam no `.claude/settings.json`, em `IZI_FORMAT` e
+`IZI_CHECK`, e o kickoff preenche de acordo com a sua stack. Num
+repositório com várias stacks eles apontam para `scripts/izi-check.sh` e
+`scripts/izi-format.sh`, e uma mudança numa stack só checa aquela stack.
 
-Quer deixar uma anotação sua no `AGENTS.md`? Escreva entre `<!--` e
-`-->`. O Claude não vê esse trecho.
-
-## O que acontece sem você pedir
-
-| Quando | O quê |
-|---|---|
-| Depois de cada edição | O arquivo é formatado |
-| Antes de cada commit | Tipos, lint e os testes dos arquivos alterados são checados, e o gitleaks procura senhas e chaves. Se algo falhar, o commit é bloqueado e o Claude corrige |
-| No fim de cada resposta que deixou código sem commit | A mesma checagem de tipos, lint e testes. Se algo falhar, o Claude corrige antes de parar |
-| Em cada PR | O CI roda tudo de novo |
-
-Se o Claude terminar a resposta com uma pergunta para você, a checagem
-não força ele a continuar.
-
-Os comandos ficam no bloco `env` do `.claude/settings.json`, em
-`IZI_FORMAT` e `IZI_CHECK`. Num repositório com mais de uma stack (por
-exemplo, uma API e um app mobile), eles apontam para dois scripts em
-`scripts/`, e uma mudança numa stack só checa aquela stack. Em
-TypeScript, o padrão usa
-[TypeScript](https://www.typescriptlang.org/),
-[Prettier](https://prettier.io/), [ESLint](https://eslint.org/),
-[Vitest](https://vitest.dev/) e [pnpm](https://pnpm.io/). Se o seu
-projeto usa outras ferramentas, o kickoff ajusta.
-
-## Modelos
-
-| Etapa | Modelo |
-|---|---|
-| kickoff e spec | Opus |
-| build, fix e ship | Sonnet |
-| Leitura da spec por quem vai construir | Sonnet |
-| Revisão do código contra a spec | Opus |
-| Busca no código | Haiku |
-
-O Opus entra onde tem decisão de arquitetura e de escopo. O resto roda no
-Sonnet, que sai mais barato. A revisão de bugs no fim do build usa o
-[`/code-review`](https://code.claude.com/docs/en/code-review-local) do
-próprio Claude Code. Fora dos comandos do IZI, vale o modelo que cada
-pessoa escolheu no `/model`.
-
-## Sandbox
-
-O kickoff liga o
-[sandbox do Claude Code](https://code.claude.com/docs/en/sandboxing). Com
-ele, os comandos que o Claude roda ficam isolados do resto da máquina e
-não pedem permissão a cada passo. Por causa disso, algumas coisas mudam:
-
-- Deixe no `.env` local só credenciais de desenvolvimento e de teste. O
-  sandbox não consegue diferenciar o Claude lendo o arquivo do seu build
-  lendo o arquivo, então a leitura fica liberada. Segredo de produção fica
-  no provedor de hospedagem. A pasta `secrets/` continua bloqueada.
-- `git push`, `git pull` e `gh pr` rodam fora do sandbox e pedem a sua
-  confirmação.
-- Comandos que usam Docker ou acessam um serviço no `localhost`, como
-  testes contra um Postgres em container, precisam estar em
-  `sandbox.excludedCommands`. O kickoff pergunta sobre isso.
-- Erros como `EACCES`, `Read-only file system`, `Network is unreachable`
-  ou "host not allowed" vêm do sandbox, não do seu código. O Claude foi
-  instruído a dizer qual comando falhou e o que mudar no
-  `.claude/settings.json`, sem mexer no código.
-- As pastas de cache do gerenciador de pacotes mudam conforme o sistema,
-  então ficam no `~/.claude/settings.json` de cada pessoa, em
-  `sandbox.filesystem.allowWrite`. O kickoff configura a sua máquina; quem
-  entrar depois no projeto adiciona as da própria máquina.
-- No Linux, enquanto um comando roda no sandbox, caminhos protegidos que
-  não existem (`.bashrc`, `.mcp.json`, `.claude/hooks`...) aparecem como
-  arquivos não rastreados. É um
-  [bug conhecido](https://github.com/anthropics/claude-code/issues/78419).
-  O `.gitignore` do kickoff esconde os da raiz, e o Claude é instruído a
-  ignorá-los e a adicionar arquivos ao commit pelo nome.
-
-| Se acontecer | Faça |
-|---|---|
-| O Claude pede acesso a um domínio novo | Aceite, ou adicione o domínio em `sandbox.network.allowedDomains` |
-| `pnpm install` falha com `EACCES` numa pasta de cache | Adicione a pasta em `sandbox.filesystem.allowWrite` no seu `~/.claude/settings.json`. A tabela em `plugins/izi/skills/kickoff/reference/sandbox.md` tem os caminhos de cada sistema |
-| O `pnpm` trava sem mostrar erro | A versão em `packageManager` no `package.json` não é a mesma que está instalada. Deixe as duas iguais |
-| O `pnpm install` falha num pacote que vem com pasta `.vscode/` | Rode você mesmo, no prompt do Claude: `! pnpm install` |
-| O "Yes, don't ask again" não fica salvo | Rode `claude doctor` e apague os arquivos de 0 byte que ele listar |
-| Um comando que você excluiu continua rodando no sandbox | Peça para o Claude rodar só esse comando, sem `cd`, pipe ou `&&` |
+O kickoff e a spec rodam no Opus. Build, fix e ship rodam no Sonnet, e a
+busca no código roda no Haiku.
 
 ## Trabalhando a dois
 
-O IZI é feito para um dev só, e isso não muda. Quando entra uma segunda
-pessoa (o dono do repositório a adiciona como colaboradora), os mesmos
-comandos bastam:
+Quem trabalha sozinho não nota diferença nenhuma. Quando alguém entra, o
+roadmap do `docs/PROJECT.md` continua sendo uma lista curta do que vem a
+seguir, e um item conta como feito quando a spec dele está com
+`Status: shipped`. Ninguém edita a lista, então os PRs não brigam por
+ela. Bugs e ideias vão para as issues do GitHub, e o Claude pergunta
+antes de abrir uma. Quem roda `/izi:spec #42` ou `/izi:fix #57` fica como
+responsável pela issue, e ela fecha quando o PR entra. O merge é sempre
+decisão de uma pessoa, e a única regra obrigatória é o CI verde.
 
-- O roadmap do `docs/PROJECT.md` continua sendo a direção: uma lista curta
-  das próximas fatias, cada uma com o slug da sua spec. Um item está
-  feito quando a spec dele diz `Status: shipped`, então ninguém edita a
-  lista e dois PRs abertos nunca conflitam ali.
-- As issues são a caixa de entrada do resto: bugs, melhorias, ideias. O
-  Claude oferece abrir uma quando acha um problema fora da tarefa, e só
-  abre depois do seu ok. Labels: `bug` e `improvement`.
-- Quem pega uma issue fica como responsável por ela: `/izi:spec #42` e
-  `/izi:fix #57` atribuem a issue a você e a fecham quando o PR entra.
-- Antes do push, o `/izi:ship` faz merge da `main` mais recente na branch
-  em vez de rebase, porque o force push é bloqueado.
-- O merge continua sendo decisão de uma pessoa, e o CI verde é a única
-  regra obrigatória. Se um repositório privado pode exigir proteção de
-  branch depende do seu plano no GitHub; quando não pode, vira convenção.
+## Sandbox
+
+No Linux, no macOS e no WSL2, o kickoff liga o
+[sandbox do Claude Code](https://code.claude.com/docs/en/sandboxing), e
+os comandos rodam isolados sem pedir permissão a cada passo. Deixe só
+credenciais de desenvolvimento no seu `.env` local. `git push` e `gh pr`
+rodam fora do sandbox e perguntam antes. Quando um comando falha com
+`EACCES`, `Read-only file system` ou um host bloqueado, é o sandbox, e o
+Claude diz o que acrescentar na configuração em vez de mexer no seu
+código. As pastas de cache do seu gerenciador de pacotes ficam no
+`.claude/settings.local.json`, que fica só na sua máquina.
 
 ## Windows e o app desktop
 
-O IZI roda no Windows nativo, no terminal e no app desktop.
+O IZI roda direto no Windows, no terminal e no app desktop. Instale o
+[Git for Windows](https://git-scm.com/download/win), porque os hooks
+rodam no Git Bash dele, e o jq com `winget install jqlang.jq`. Os dois
+precisam estar no PATH das variáveis de ambiente do sistema, porque o app
+desktop não lê o perfil do PowerShell, e o app precisa ser reaberto
+depois que você muda isso. Se o Claude Code não achar o Git Bash, aponte
+a `CLAUDE_CODE_GIT_BASH_PATH` para o `bash.exe` dele.
 
-- Instale o [Git for Windows](https://git-scm.com/download/win): os hooks
-  do IZI rodam no Git Bash dele. Depois, instale o jq com
-  `winget install jqlang.jq`. Se o Claude Code não achar o Git Bash
-  sozinho, aponte a `CLAUDE_CODE_GIT_BASH_PATH` para o `bash.exe` dele
-  (normalmente `C:\Program Files\Git\bin\bash.exe`).
-- Os dois precisam estar no `PATH` das variáveis de ambiente do usuário
-  ou do sistema. O app desktop não lê o perfil do PowerShell; depois de
-  mudar o `PATH`, feche e abra o app de novo.
-- O Windows nativo não tem sandbox, então os comandos pedem permissão com
-  mais frequência. O modo Auto corta a maior parte desses pedidos.
-- Commits feitos pela ferramenta PowerShell passam pelas mesmas checagens
-  do Bash, e as mesmas regras de permissão valem.
-- No app desktop, os plugins carregam em sessões locais e SSH, não em
-  sessões WSL nem na nuvem. Os comandos `/izi:` funcionam igual; troque
-  de modo pelo seletor embaixo da caixa de mensagem em vez do `Shift+Tab`.
-- O WSL2 também funciona e tem sandbox, como no Linux. Use-o pelo
-  terminal, já que o app desktop não carrega plugins lá. Deixe o
-  repositório dentro do WSL (`~/`), não em `/mnt/c`.
+O Windows não tem sandbox, então o Claude pede permissão com mais
+frequência, e o modo Auto resolve boa parte disso. Commits feitos pelo
+PowerShell passam pelas mesmas checagens do Bash.
 
-## Manutenção
+O app desktop carrega plugins em sessões locais e SSH, mas não em sessões
+WSL nem na nuvem. Se preferir o WSL, use pelo terminal e deixe o
+repositório dentro do WSL, não em `/mnt/c`.
 
-- Para atualizar o IZI, abra o `/plugin`, vá em Marketplaces, escolha
-  `izi` e depois Update marketplace. Em marketplaces como este, a
-  atualização automática vem desligada; para ligar, escolha **Enable
-  auto-update** na mesma tela. Cada pessoa faz isso na própria máquina. O
-  que mudou em cada versão está no
-  [CHANGELOG.md](CHANGELOG.md). Mais detalhes na
-  [documentação de plugins](https://code.claude.com/docs/en/plugins/install).
-- Quando sair um modelo novo, rode `/doctor prompt-audit` e apague as
-  instruções que o modelo já segue sem precisar. Instrução sobrando só
-  atrapalha.
-- O `/usage` mostra para onde estão indo os seus tokens.
-- O CI roda `pnpm audit` toda semana. Para atualizar as dependências
-  automaticamente, ative o
-  [Dependabot](https://docs.github.com/en/code-security/dependabot) ou o
-  [Renovate](https://docs.renovatebot.com/).
+## Atualização
+
+Projetos configurados pelo kickoff já vêm com a atualização automática do
+IZI ligada, e a versão nova entra na sua próxima sessão. Para atualizar na
+mão, abra o `/plugin`, vá em Marketplaces, escolha `izi` e depois Update
+marketplace. O que mudou em cada versão está no
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Como contribuir
 
-```text
-.claude-plugin/marketplace.json   marketplace "izi"
-plugins/izi/
-  skills/      kickoff, spec, build, fix, ship
-  agents/      reviewer, spec-check
-  hooks/       hooks.json
-  scripts/     scripts dos hooks
-  evals/       casos que medem o que o plugin acrescenta
-tests/hooks.sh                    testes dos scripts dos hooks
-tests/templates.sh                testes dos scripts de monorepo que o kickoff copia
-```
-
-Para testar uma mudança sem publicar, rode
-`claude --plugin-dir ./plugins/izi`. Antes de publicar, rode
-`claude plugin validate .`. Mudou um script de hook? Rode
-`bash tests/hooks.sh` (e `bash tests/templates.sh`, se mexeu nos scripts
-dos templates); o CI também roda em Linux, Windows e macOS.
-
-Uma cópia instalada só muda quando o `version` muda, então reinstalar a
-mesma versão mantém os arquivos antigos. Para testar no app desktop uma
-mudança ainda não publicada, de uma branch, feche o app, apague
-`~/.claude/plugins/cache/izi` e reinstale.
-
-Os [evals](https://code.claude.com/docs/en/plugin-evals) rodam cada caso
-com e sem o plugin e mostram a diferença. Rode depois de mudar uma skill
-e quando sair um modelo novo:
+Para testar uma mudança sem publicar, use
+`claude --plugin-dir ./plugins/izi`. Antes de abrir um PR, rode
+`claude plugin validate .`, `bash tests/hooks.sh` e
+`bash tests/templates.sh`. O CI roda os testes no Linux, no macOS e no
+Windows. Os [evals](https://code.claude.com/docs/en/plugin-evals) comparam
+execuções com e sem o plugin e custam dinheiro, então rode os da skill que
+você mudou.
 
 ```bash
 cd plugins/izi
-claude plugin eval . --scaffold --allow-tools Edit "Bash(git *)"
+claude plugin eval . --scaffold --allow-tools Edit --case <nome>
 ```
 
-Cada execução gasta do seu plano. Para testar só um caso, use
-`--case <nome>`.
-
-### Como publicar uma versão
-
-As cópias instaladas só se atualizam quando o `version` em
-`plugins/izi/.claude-plugin/plugin.json` muda. Um commit no `main` sem
-versão nova não chega a ninguém.
-
-1. Suba o `version` seguindo [semver](https://semver.org/lang/pt-BR/):
-   patch para correção, minor para comportamento novo, major quando um
-   projeto configurado pelo kickoff precisa mudar.
-2. Adicione uma seção `## <versão> - <data>` no [CHANGELOG.md](CHANGELOG.md).
-3. Rode os evals e o `claude plugin validate .`.
-4. Faça o merge no `main`. O CI cria a tag `v<versão>` e, num PR, falha
-   se o plugin mudou sem versão nova.
+Uma cópia instalada só muda quando o `version` em
+`plugins/izi/.claude-plugin/plugin.json` muda, então toda mudança precisa
+de uma versão nova e de uma entrada no CHANGELOG. O CI confere as duas
+coisas e cria a tag depois do merge. Para testar uma branch no app
+desktop, feche o app, apague `~/.claude/plugins/cache/izi` e instale de
+novo.
 
 ## Licença
 

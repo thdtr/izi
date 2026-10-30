@@ -3,6 +3,29 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.0 - 2026-10-30
+
+### Fixed
+
+- Multi-stack `scripts/izi-check.sh` ran the same command for the quick
+  and the full gate. Each stack now has a quick check (the stacks a
+  change touches) and a full check (`--all`, and `<stack>` in CI).
+  Projects that already copied the script: split each line into
+  `name|directory|quick|full`.
+- README said auto-update had to be turned on by hand; projects set up
+  by kickoff already have it on.
+
+### Changed
+
+- Sandbox cache paths go to the project's `.claude/settings.local.json`
+  (not committed) instead of `~/.claude/settings.json`.
+- Kickoff checks `bwrap` and `socat` on Linux and WSL2.
+- Kickoff and spec ask as text when `AskUserQuestion` isn't available
+  (`claude -p`, other harnesses), at most 4 questions, and stop.
+- Quicker quick gates in the reference: PHP with `pest --dirty`, Python
+  with `pytest-testmon`, Dart analyzing only the changed files.
+- Both READMEs rewritten, about half as long.
+
 ## 1.5.0 - 2026-10-30
 
 ### Added

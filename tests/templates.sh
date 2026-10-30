@@ -17,19 +17,20 @@ native() { if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else ech
 repo="$tmp/repo"
 mkdir -p "$repo/scripts" "$repo/api/pkg" "$repo/app/lib"
 log="$tmp/log"
-# make_check <api check>: the api stack gets that command, app records its run.
+# make_check <api quick check>: each check records which stack, which kind
+# (quick/full), where it ran and what it got.
 make_check() {
-  sed -e "s#\"<name>|<directory>|<check command>\"#\"api|api|$1\" \"app|app|echo app \\\\\$PWD \\\\\$IZI_CHANGED >>'$log'\"#" \
+  sed -e "s#\"<name>|<directory>|<quick check>|<full check>\"#\"api|api|$1|echo api full >>'$log'\" \"app|app|echo app quick \\\\\$PWD \\\\\$IZI_CHANGED >>'$log'|echo app full >>'$log'\"#" \
     "$templates/izi-check.sh" >"$repo/scripts/izi-check.sh"
 }
-make_check "echo api \\\\\$PWD \\\\\$IZI_CHANGED >>'$log'"
+make_check "echo api quick \\\\\$PWD \\\\\$IZI_CHANGED >>'$log'"
 sed -e "s#\"<directory>|<ext,ext>|<format command>\"#\"api|go|echo api >>'$log'; echo\" \"app|dart|echo app >>'$log'; echo\"#" \
   "$templates/izi-format.sh" >"$repo/scripts/izi-format.sh"
 
 check() { : >"$log"; out="$(cd "$repo" && IZI_CHANGED="$1" "$BASH" scripts/izi-check.sh ${2:+"$2"} 2>&1)"; code=$?; ran="$(cat "$log")"; }
 
 check "api/pkg/a.go api/b.go"
-[[ $code == 0 && "$ran" == "api "*"/api pkg/a.go b.go" ]] && pass "quick gate runs only the touched stack, inside it, with its own paths" ||
+[[ $code == 0 && "$ran" == "api quick "*"/api pkg/a.go b.go" ]] && pass "quick gate runs only the touched stack, inside it, with its own paths" ||
   fail "quick gate runs only the touched stack, inside it, with its own paths" "code=$code ran=$ran out=$out"
 
 check "README.md"
@@ -37,12 +38,12 @@ check "README.md"
   fail "quick gate skips files outside every stack" "code=$code ran=$ran"
 
 check "" --all
-[[ $code == 0 && "$ran" == *"api "* && "$ran" == *"app "* ]] && pass "--all runs every stack" ||
-  fail "--all runs every stack" "code=$code ran=$ran"
+[[ $code == 0 && "$ran" == *"api full"* && "$ran" == *"app full"* && "$ran" != *quick* ]] && pass "--all runs the full check of every stack" ||
+  fail "--all runs the full check of every stack" "code=$code ran=$ran"
 
 check "" app
-[[ $code == 0 && "$ran" == "app "* && "$ran" != *"api "* ]] && pass "a stack name runs only that stack" ||
-  fail "a stack name runs only that stack" "code=$code ran=$ran"
+[[ $code == 0 && "$ran" == "app full" ]] && pass "a stack name runs only that stack's full check" ||
+  fail "a stack name runs only that stack's full check" "code=$code ran=$ran"
 
 check "" nope
 [[ $code == 2 && "$out" == *"Unknown stack"* ]] && pass "an unknown stack name fails" ||

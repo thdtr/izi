@@ -2,9 +2,9 @@
 
 Reference for /izi:kickoff to adjust `sandbox`, `env` and `permissions`
 in `.claude/settings.json`. The template already covers the pnpm and
-GitHub domains. `allowWrite` cache paths depend on the OS, so they go to
-the user's `~/.claude/settings.json`, which Claude Code merges with the
-project's.
+GitHub domains. `allowWrite` cache paths depend on the machine, so they
+go to `.claude/settings.local.json`, which isn't committed and which
+Claude Code merges with the project's settings.
 
 ## Facts behind the profile
 
@@ -39,8 +39,8 @@ project's.
 
 ## Package manager
 
-`allowWrite` goes to `~/.claude/settings.json`; `allowedDomains` to the
-project's settings.
+`allowWrite` goes to `.claude/settings.local.json`; `allowedDomains` to
+the project's settings.
 
 | PM | `allowWrite` | `allowedDomains` |
 |---|---|---|
@@ -79,10 +79,10 @@ silently in the sandbox: match the installed version to the one in
 | TS + Prettier + ESLint + Vitest | `pnpm exec prettier --write --ignore-unknown --log-level=silent` | `pnpm exec tsc --noEmit --incremental && pnpm exec eslint --max-warnings=0 --no-warn-ignored $IZI_CHANGED && pnpm exec vitest related --run --passWithNoTests $IZI_CHANGED` | `ts,tsx,js,jsx,mjs,cjs` |
 | TS + Biome | `pnpm exec biome format --write --no-errors-on-unmatched` | `pnpm exec tsc --noEmit --incremental && pnpm exec biome check --no-errors-on-unmatched $IZI_CHANGED && pnpm exec vitest related --run --passWithNoTests $IZI_CHANGED` | `ts,tsx,js,jsx,mjs,cjs` |
 | TS + Jest | (same) | replace vitest with `pnpm exec jest --findRelatedTests --passWithNoTests $IZI_CHANGED` | |
-| Go | `gofmt -w` | `go vet ./... && go test ./...` | `go` |
-| Python (ruff + pytest) | `ruff format` | `ruff check $IZI_CHANGED && pytest -q -x` | `py` |
-| Dart/Flutter | `dart format` | `dart analyze --fatal-infos && flutter test` (pure Dart: `dart test`) | `dart` |
-| PHP (Pint + PHPStan + Pest) | `vendor/bin/pint` | `vendor/bin/phpstan analyse --no-progress $IZI_CHANGED && vendor/bin/pest` (PHPUnit: `vendor/bin/phpunit`) | `php` |
+| Go | `gofmt -w` | `go vet ./... && go test ./...` (Go caches the tests of unchanged packages, so this stays quick) | `go` |
+| Python (ruff + pytest) | `ruff format` | `ruff check $IZI_CHANGED && pytest -q -x --testmon` (with `pytest-testmon`; without it, `pytest -q -x` runs the whole suite) | `py` |
+| Dart/Flutter | `dart format` | `dart analyze --fatal-infos $IZI_CHANGED` (the tests run in the full gate: `flutter test`, or `dart test` for pure Dart) | `dart` |
+| PHP (Pint + PHPStan + Pest) | `vendor/bin/pint` | `vendor/bin/phpstan analyse --no-progress $IZI_CHANGED && vendor/bin/pest --dirty` (PHPUnit: `vendor/bin/phpunit`) | `php` |
 
 Replace `pnpm exec` with the runner of the project's package manager
 (`npx --no-install`, `yarn`, `bunx`). Short output saves tokens: prefer
@@ -95,13 +95,14 @@ mobile app) keeps one quick gate, so a change in one stack doesn't run
 the other's tests:
 
 - Copy `templates/izi-check.sh` and `templates/izi-format.sh` to
-  `scripts/` and fill one line per stack with the commands from the
-  table above. Each check runs inside its directory, with `IZI_CHANGED`
-  holding only that stack's files, relative to it.
+  `scripts/` and fill one line per stack: its quick check (the
+  `IZI_CHECK` column above) and its full check (lint, types, every test
+  and build). Each check runs inside its directory; the quick one gets
+  `IZI_CHANGED` with only that stack's files, relative to it.
 - `env`: `IZI_CHECK` = `scripts/izi-check.sh`, `IZI_FORMAT` =
   `scripts/izi-format.sh`, `IZI_CODE_EXT` = every stack's extensions.
-- Full gate in `AGENTS.md`: `scripts/izi-check.sh --all`, one command,
-  so it needs no `cd` in the sandbox.
+- Full gate in `AGENTS.md`: `scripts/izi-check.sh --all` (every stack's
+  full check), one command, so it needs no `cd` in the sandbox.
 - CI: one job per stack, running `scripts/izi-check.sh <stack>`. Don't
   filter by `paths` at the workflow level: a required check that gets
   skipped stays pending and blocks the merge.

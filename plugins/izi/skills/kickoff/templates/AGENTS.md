@@ -35,13 +35,13 @@ costs tokens in every session, so keep only what changes behavior. -->
 - `EACCES`, `Read-only file system`, `Network is unreachable` or a blocked host in a command = sandbox limit, not a bug. Don't change code because of it: report the command and the path/host and propose the change in `.claude/settings.json`.
 - Files in `.claude/` only with Edit/Write, never through Bash.
 - Untracked entries at protected paths (`.bashrc`, `.mcp.json`, `.claude/hooks`...) that are empty, read-only or character devices are sandbox masks: ignore them and don't mention them. Stage files by name; never `git add .` or `git add -A`.
-- Package manager caches are allowed per machine, in each person's `~/.claude/settings.json` (`sandbox.filesystem.allowWrite`). A cache write blocked by the sandbox: propose the line for that file.
+- Package manager caches are allowed per machine, in `.claude/settings.local.json` (`sandbox.filesystem.allowWrite`), which isn't committed. A cache write blocked by the sandbox: propose the line for that file.
 
 ## Working
 
 - Branch `feat/<slug>` or `fix/<slug>`; never commit to main. Small commit per slice; the message describes the effect.
 - Feature with a spec: `docs/specs/<slug>.md` is the contract. Keep its checkboxes and `Notes` up to date. A spec marked `Status: shipped` is a record of what was built; the code and tests are the truth.
-- Ask with AskUserQuestion when you can't move forward without me, or before something destructive.
+- Ask with AskUserQuestion when you can't move forward without me, or before something destructive. Without that tool, ask as text and stop.
 - A problem outside the current task: don't fix it along the way. Offer to open an issue (`gh issue create`, label `bug` or `improvement`) and create it only after my OK.
 - Two failed attempts at the same problem: stop, record in `Notes` what you tried and what the evidence disproved, and suggest `/clear`.
 - Verification evidence = command run + result line, not the whole output.
