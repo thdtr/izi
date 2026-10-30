@@ -89,7 +89,8 @@ there).
 - `.claude/settings.json` from the template, merged with the existing one:
   - `env`: `IZI_FORMAT`, `IZI_CHECK` and `IZI_CODE_EXT` from the
     per-stack table in the reference, adapted to the project's runner.
-    Test both commands once before saving.
+    More than one stack: the scripts from "More than one stack" in the
+    reference. Test both commands once before saving.
   - `sandbox`, `permissions.ask` and telemetry in `env` according to the
     reference and the answers from step 2. Remove `ask` lines for tools
     the project doesn't use. Only settings that hold on every OS go

@@ -3,6 +3,18 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.5.0 - 2026-10-30
+
+### Added
+
+- More than one stack in a repository: kickoff copies
+  `scripts/izi-check.sh` (quick gate only for the stacks a change
+  touches, `--all` for the full gate, `<stack>` for a CI job) and
+  `scripts/izi-format.sh` (formatter by directory and extension). The
+  hooks don't change.
+- Sandbox and gate rows for Dart/Flutter and PHP.
+- `tests/templates.sh`, run in CI on Linux, Windows and macOS.
+
 ## 1.4.0 - 2026-10-30
 
 ### Added

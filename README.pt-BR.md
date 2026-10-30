@@ -133,7 +133,10 @@ Se o Claude terminar a resposta com uma pergunta para você, a checagem
 não força ele a continuar.
 
 Os comandos ficam no bloco `env` do `.claude/settings.json`, em
-`IZI_FORMAT` e `IZI_CHECK`. Em TypeScript, o padrão usa
+`IZI_FORMAT` e `IZI_CHECK`. Num repositório com mais de uma stack (por
+exemplo, uma API e um app mobile), eles apontam para dois scripts em
+`scripts/`, e uma mudança numa stack só checa aquela stack. Em
+TypeScript, o padrão usa
 [TypeScript](https://www.typescriptlang.org/),
 [Prettier](https://prettier.io/), [ESLint](https://eslint.org/),
 [Vitest](https://vitest.dev/) e [pnpm](https://pnpm.io/). Se o seu
@@ -268,12 +271,14 @@ plugins/izi/
   scripts/     scripts dos hooks
   evals/       casos que medem o que o plugin acrescenta
 tests/hooks.sh                    testes dos scripts dos hooks
+tests/templates.sh                testes dos scripts de monorepo que o kickoff copia
 ```
 
 Para testar uma mudança sem publicar, rode
 `claude --plugin-dir ./plugins/izi`. Antes de publicar, rode
 `claude plugin validate .`. Mudou um script de hook? Rode
-`bash tests/hooks.sh`; o CI também roda em Linux, Windows e macOS.
+`bash tests/hooks.sh` (e `bash tests/templates.sh`, se mexeu nos scripts
+dos templates); o CI também roda em Linux, Windows e macOS.
 
 Uma cópia instalada só muda quando o `version` muda, então reinstalar a
 mesma versão mantém os arquivos antigos. Para testar no app desktop uma

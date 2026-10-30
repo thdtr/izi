@@ -134,7 +134,10 @@ If Claude ends its reply with a question for you, the check won't force
 it to keep going.
 
 The commands live in the `env` block of `.claude/settings.json`, under
-`IZI_FORMAT` and `IZI_CHECK`. For TypeScript the defaults use
+`IZI_FORMAT` and `IZI_CHECK`. In a repository with more than one stack
+(say an API and a mobile app), they point to two scripts in `scripts/`,
+so a change in one stack only checks that stack. For TypeScript the
+defaults use
 [TypeScript](https://www.typescriptlang.org/),
 [Prettier](https://prettier.io/), [ESLint](https://eslint.org/),
 [Vitest](https://vitest.dev/) and [pnpm](https://pnpm.io/). If your
@@ -267,12 +270,14 @@ plugins/izi/
   scripts/     hook scripts
   evals/       cases that measure what the plugin adds
 tests/hooks.sh                    hook script tests
+tests/templates.sh                tests for the monorepo scripts kickoff copies
 ```
 
 To try a change without publishing it, run
 `claude --plugin-dir ./plugins/izi`. Before publishing, run
 `claude plugin validate .`. After changing a hook script, run
-`bash tests/hooks.sh`; CI also runs it on Linux, Windows and macOS.
+`bash tests/hooks.sh` (and `bash tests/templates.sh` after changing the
+template scripts); CI also runs them on Linux, Windows and macOS.
 
 An installed copy only changes when `version` changes, so reinstalling
 the same version keeps the old files. To try an unreleased change from a
