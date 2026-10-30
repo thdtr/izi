@@ -1,6 +1,6 @@
 ---
 name: kickoff
-description: Sets up the project for the izi workflow - AGENTS.md, settings with permissions, sandbox and gates, architecture decisions, vertical roadmap and CI. Once per project, new or existing.
+description: Sets up the project for the izi workflow - AGENTS.md, settings with permissions, sandbox and gates, architecture decisions, vertical roadmap and CI. Once per project, new or existing; run it again on a new machine to set that machine up.
 disable-model-invocation: true
 model: opus
 effort: high
@@ -31,6 +31,20 @@ Existing skills, agents or hooks in `.claude/` that do the same job as
 izi's (spec, build, fix, ship, review, exploration, formatting, Stop
 gate): list them in the step 3 plan for removal, so nothing is
 duplicated.
+
+Native Windows (platform `win32`; WSL counts as Linux): check from Bash
+that `bash`, `jq` and `gh` resolve. A missing one goes into the step 3
+plan with its install command (`winget install jqlang.jq`,
+`winget install GitHub.cli`). Hooks only work once Git Bash and jq are on
+the system `PATH`.
+
+Already set up by izi (`AGENTS.md` and `IZI_CHECK` in
+`.claude/settings.json` exist): someone joining, or a re-run. Don't
+interview and don't touch committed files. Only set up this machine:
+the `allowWrite` cache paths from step 4, `gh auth status`, and whether
+`izi` is installed (otherwise:
+`claude plugin install izi@izi --scope project`). Report what you did;
+`git status` stays clean. A full redo only if the user asks for it.
 
 ## 2. Interview only what's missing
 
@@ -82,7 +96,8 @@ there).
 - `~/.claude/settings.json`, merged: the `sandbox.filesystem.allowWrite`
   cache paths from the reference for this machine's OS. They depend on
   the OS, so each person keeps their own; Claude Code merges them with
-  the project's settings.
+  the project's settings. Native Windows has no sandbox: skip this, say
+  so, and suggest Auto mode to cut permission prompts.
 - `.claude/agents/Explore.md` from the template (exploration on Haiku).
 - `.claude/rules/tests.md` and, if there is UI, `.claude/rules/ui.md`:
   fill in the `<...>` and adjust `paths:` to the real structure.
@@ -102,6 +117,8 @@ there).
   and language if it isn't pnpm/Node; safe placeholders for env vars the
   build requires.
 - `.gitignore`: make sure it has the lines from `templates/gitignore`.
+- `.gitattributes`: make sure it has the lines from
+  `templates/gitattributes` (scripts stay in LF on Windows).
 - `.worktreeinclude` from `templates/worktreeinclude` (copies `.env` into
   `claude -w` worktrees).
 - `.env.example` with the variables the code reads, no values.
