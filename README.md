@@ -32,10 +32,12 @@ claude plugin marketplace add thdtr/izi
 claude plugin install izi@izi
 ```
 
-In the desktop app, use **+** next to the prompt box, then **Add
-plugins**, in a local session. If `izi` isn't listed, run the two commands
-above once in a terminal: the terminal and the desktop app share the same
-plugin settings.
+In the desktop app, you don't need the terminal. In a local session,
+type `/plugin marketplace add thdtr/izi` in the prompt box, accept, then
+add the `izi` plugin with the buttons that show up (or later with **+**
+next to the prompt box, then **Add plugins**). The terminal and the
+desktop app share the same plugin settings, so installing in one is
+enough.
 
 In each project, new or already underway, open Claude in its folder and
 run:
@@ -53,7 +55,8 @@ to open your app to check the result.
 
 Joining a project that already uses IZI? Its `.claude/settings.json`
 turns the plugin on but doesn't download it. Add the marketplace and run
-`claude plugin install izi@izi --scope project` once.
+`claude plugin install izi@izi --scope project` once, or, in the desktop
+app, install `izi` choosing the project scope.
 
 ## How it works
 
