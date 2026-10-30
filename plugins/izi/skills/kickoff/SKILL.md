@@ -102,8 +102,9 @@ there).
 - `.claude/rules/tests.md` and, if there is UI, `.claude/rules/ui.md`:
   fill in the `<...>` and adjust `paths:` to the real structure.
 - `docs/PROJECT.md` from the template. Roadmap = shippable vertical
-  slices; the first one is the walking skeleton (login + 1 real screen +
-  deploy + green CI). Never layer-by-layer steps.
+  slices, one per line, each with a kebab-case slug that will be its
+  spec's slug; the first one is the walking skeleton (login + 1 real
+  screen + deploy + green CI). Never layer-by-layer steps.
 - `docs/DESIGN.md` from the template, only if there is UI and the user
   wants it now.
 - Verifiable architecture (TS): `dependency-cruiser` as a devDependency,
@@ -134,4 +135,4 @@ or fewer:
 - if there is UI or a server: run `/run-skill-generator` once, so
   verification in the running app works;
 - suggested commit: `chore: set up izi workflow`;
-- next step: `/izi:spec "<first roadmap slice>"`.
+- next step: `/izi:spec <first roadmap slug>`.

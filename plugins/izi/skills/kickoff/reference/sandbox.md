@@ -67,7 +67,7 @@ silently in the sandbox: match the installed version to the one in
 | Local database (Postgres/Redis in a container) | Tests that connect to it go in `excludedCommands` (e.g. `pnpm test *`), or use an in-process database in tests (PGlite, SQLite) and keep them in the sandbox |
 | Vercel CLI | Already `ask`; `allowedDomains`: `api.vercel.com`, `vercel.com` |
 | Stripe CLI | `excludedCommands`: `stripe listen *` (long-lived connection) |
-| gh | Already excluded for `pr`/`run`: the token may be in the keyring, which the sandbox can't reach |
+| gh | Already excluded for `pr`/`run`/`issue`: the token may be in the keyring, which the sandbox can't reach |
 | Signed commits (GPG/SSH) | `git commit *` in `excludedCommands` (the key agent is a blocked socket) |
 
 ## Format and gate commands per language

@@ -2,7 +2,7 @@
 name: fix
 description: Use when something is broken - a bug, unexpected error or failing test. Reproduces, finds the root cause, fixes and verifies. Invoked as /izi:fix, it also takes a one-off tweak outside a spec.
 model: sonnet
-argument-hint: "bug symptom or the change you want"
+argument-hint: "bug symptom, the change you want, or #issue"
 ---
 
 # fix
@@ -10,6 +10,10 @@ argument-hint: "bug symptom or the change you want"
 Target: $ARGUMENTS
 
 ## 0. Scope
+
+- Target `#<n>`: an issue. Read it with `gh issue view <n>` and assign
+  yourself (`gh issue edit <n> --add-assignee @me`); its body is the
+  symptom or the change.
 
 - Needs new behavior, several modules, or a product/data decision: not a
   fix. Point to `/izi:spec` and stop.
@@ -50,4 +54,5 @@ Edit and run whatever verification exists (test, build, running app).
 ## 3. Commit
 
 `fix: <effect>` or `chore: <effect>`, without asking for confirmation.
+From an issue, end the message with `(#<n>)`.
 Outside a feature in progress, the next step is `/izi:ship`.

@@ -42,6 +42,7 @@ costs tokens in every session, so keep only what changes behavior. -->
 - Branch `feat/<slug>` or `fix/<slug>`; never commit to main. Small commit per slice; the message describes the effect.
 - Feature with a spec: `docs/specs/<slug>.md` is the contract. Keep its checkboxes and `Notes` up to date. A spec marked `Status: shipped` is a record of what was built; the code and tests are the truth.
 - Ask with AskUserQuestion when you can't move forward without me, or before something destructive.
+- A problem outside the current task: don't fix it along the way. Offer to open an issue (`gh issue create`, label `bug` or `improvement`) and create it only after my OK.
 - Two failed attempts at the same problem: stop, record in `Notes` what you tried and what the evidence disproved, and suggest `/clear`.
 - Verification evidence = command run + result line, not the whole output.
 - End of a long run: three short headings (Blocked on me, Changed, Found).

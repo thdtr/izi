@@ -86,6 +86,8 @@ starts with just the spec instead of dragging the whole interview along.
 | Feature that involves a decision about data, permissions or UI | `/izi:spec`, then `/izi:build` and `/izi:ship` |
 | Small change that touches more than one file | [Plan mode](https://code.claude.com/docs/en/permission-modes) (`Shift+Tab`, or the mode selector in the desktop app) and just ask |
 | Bug, broken test or one-off tweak | `/izi:fix "what's happening"` |
+| Work from a GitHub issue | `/izi:spec #42` for a feature, `/izi:fix #57` for a bug |
+| What's next on the roadmap | `/izi:spec` with no argument |
 | Trivial change, like a text tweak or a typo | Just ask |
 | Mechanical refactor across many files | [`/batch`](https://code.claude.com/docs/en/commands) |
 | Clean up the code that changed | [`/simplify`](https://code.claude.com/docs/en/commands) |
@@ -190,6 +192,27 @@ of that:
 | `pnpm install` fails on a package that ships a `.vscode/` folder | Run it yourself in the Claude prompt: `! pnpm install` |
 | "Yes, don't ask again" doesn't stick | Run `claude doctor` and delete the 0-byte files it lists |
 | A command you excluded still runs in the sandbox | Ask Claude to run that command on its own, without `cd`, pipes or `&&` |
+
+## Working with two people
+
+IZI is built for one developer, and nothing changes for that. When a
+second person joins (the repository owner adds them as a collaborator),
+the same commands are enough:
+
+- The roadmap in `docs/PROJECT.md` stays the direction: a short list of
+  the next slices, each with the slug of its spec. An item is done when
+  its spec says `Status: shipped`, so nobody edits the list and two open
+  PRs never conflict there.
+- Issues are the inbox for everything else: bugs, improvements, ideas.
+  Claude offers to open one when it finds a problem outside the task, and
+  only opens it after your OK. Labels: `bug` and `improvement`.
+- Whoever takes an issue is its assignee: `/izi:spec #42` and
+  `/izi:fix #57` assign you and close the issue when the PR merges.
+- Before pushing, `/izi:ship` merges the latest `main` into the branch
+  instead of rebasing, since force push is blocked.
+- Merging stays a human decision, and green CI is the only hard rule.
+  Whether a private repository can enforce branch protection depends on
+  your GitHub plan; when it can't, it's a convention.
 
 ## Windows and the desktop app
 

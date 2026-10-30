@@ -27,8 +27,9 @@ argument-hint: "[prod] to also promote to production"
 
 `feat/` branch: add `Status: shipped` on the line below the spec's
 title, so it reads as a record of what was built, not a live contract.
-If the spec references a `Roadmap` item in `docs/PROJECT.md`, mark it
-`[x]`. Commit `docs: ship <slug>`.
+That line is what marks the roadmap item as done: don't edit
+`docs/PROJECT.md`, so two open PRs never conflict there. Commit
+`docs: ship <slug>`.
 
 ## 3. PR
 
@@ -37,13 +38,19 @@ No remote or no `gh`: warn that there will be no CI and offer, with
 
 With a remote:
 
-1. `git push -u origin HEAD` (asks for confirmation).
-2. `gh pr create` with title = the effect of the change; body with a 3-5
+1. `git fetch origin` and `git merge origin/<default branch>`, never
+   rebase: the branch may already be published and force push is denied.
+   Conflict: resolve it keeping both sides' intent. If the merge brought
+   changes, run the full gate again.
+2. `git push -u origin HEAD` (asks for confirmation).
+3. `gh pr create` with title = the effect of the change; body with a 3-5
    line summary, link to the spec, how it was verified, migrations and
    deploy order (if any), and review suggestions that weren't applied.
-3. `gh pr checks --watch` with `run_in_background`: CI outlasts the Bash
+   The spec's `Issue:` line, or an `(#<n>)` in the branch's commits:
+   `Closes #<n>` in the body.
+4. `gh pr checks --watch` with `run_in_background`: CI outlasts the Bash
    timeout. Wait for the notification, don't keep polling.
-4. CI failed: read the log (`gh run view --log-failed`), fix via
+5. CI failed: read the log (`gh run view --log-failed`), fix via
    `izi:fix`, push, repeat. Green: share the PR link and the preview
    link, if there is one.
 

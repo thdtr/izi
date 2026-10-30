@@ -84,6 +84,8 @@ só com a spec, sem arrastar a entrevista inteira junto.
 | Feature que envolve decisão sobre dados, permissão ou tela | `/izi:spec`, depois `/izi:build` e `/izi:ship` |
 | Mudança pequena que mexe em mais de um arquivo | [Plan mode](https://code.claude.com/docs/en/permission-modes) (`Shift+Tab`, ou o seletor de modo no app desktop) e peça direto |
 | Bug, teste quebrado ou ajuste pontual | `/izi:fix "o que está acontecendo"` |
+| Trabalhar a partir de uma issue do GitHub | `/izi:spec #42` para uma feature, `/izi:fix #57` para um bug |
+| O que vem a seguir no roadmap | `/izi:spec` sem argumento |
 | Mudança trivial, como um texto ou erro de digitação | Peça direto |
 | Refactor mecânico em vários arquivos | [`/batch`](https://code.claude.com/docs/en/commands) |
 | Limpar o código que mudou | [`/simplify`](https://code.claude.com/docs/en/commands) |
@@ -187,6 +189,27 @@ não pedem permissão a cada passo. Por causa disso, algumas coisas mudam:
 | O `pnpm install` falha num pacote que vem com pasta `.vscode/` | Rode você mesmo, no prompt do Claude: `! pnpm install` |
 | O "Yes, don't ask again" não fica salvo | Rode `claude doctor` e apague os arquivos de 0 byte que ele listar |
 | Um comando que você excluiu continua rodando no sandbox | Peça para o Claude rodar só esse comando, sem `cd`, pipe ou `&&` |
+
+## Trabalhando a dois
+
+O IZI é feito para um dev só, e isso não muda. Quando entra uma segunda
+pessoa (o dono do repositório a adiciona como colaboradora), os mesmos
+comandos bastam:
+
+- O roadmap do `docs/PROJECT.md` continua sendo a direção: uma lista curta
+  das próximas fatias, cada uma com o slug da sua spec. Um item está
+  feito quando a spec dele diz `Status: shipped`, então ninguém edita a
+  lista e dois PRs abertos nunca conflitam ali.
+- As issues são a caixa de entrada do resto: bugs, melhorias, ideias. O
+  Claude oferece abrir uma quando acha um problema fora da tarefa, e só
+  abre depois do seu ok. Labels: `bug` e `improvement`.
+- Quem pega uma issue fica como responsável por ela: `/izi:spec #42` e
+  `/izi:fix #57` atribuem a issue a você e a fecham quando o PR entra.
+- Antes do push, o `/izi:ship` faz merge da `main` mais recente na branch
+  em vez de rebase, porque o force push é bloqueado.
+- O merge continua sendo decisão de uma pessoa, e o CI verde é a única
+  regra obrigatória. Se um repositório privado pode exigir proteção de
+  branch depende do seu plano no GitHub; quando não pode, vira convenção.
 
 ## Windows e o app desktop
 
