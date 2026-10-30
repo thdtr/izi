@@ -3,6 +3,19 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.2.0 - 2026-10-30
+
+### Added
+
+- Kickoff in a project that izi already set up only sets up the machine
+  of whoever runs it (sandbox caches, `gh`, the plugin install) and
+  leaves the committed files alone. Run it once when you join a project.
+- Kickoff on native Windows checks that `bash`, `jq` and `gh` are found,
+  skips the sandbox cache paths (there is no sandbox there) and suggests
+  Auto mode.
+- Kickoff adds `.gitattributes` so shell scripts stay in LF on Windows.
+- Eval `kickoff-joins-existing-setup`.
+
 ## 1.1.0 - 2026-10-30
 
 ### Added

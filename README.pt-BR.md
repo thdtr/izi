@@ -55,7 +55,9 @@ abrir o seu app para conferir o resultado.
 Vai entrar num projeto que já usa o IZI? O `.claude/settings.json` dele
 liga o plugin, mas não baixa. Adicione o marketplace e rode
 `claude plugin install izi@izi --scope project` uma vez, ou, no app
-desktop, instale o `izi` escolhendo o escopo do projeto.
+desktop, instale o `izi` escolhendo o escopo do projeto. Depois, rode o
+`/izi:kickoff`: num projeto que já tem o IZI, ele só configura a sua
+máquina e não mexe nos arquivos commitados.
 
 ## Como funciona
 
@@ -101,6 +103,7 @@ docs/DESIGN.md            cores, tipografia e padrões visuais (opcional)
 docs/specs/<slug>.md      uma spec por feature, escrita pelo /izi:spec
 .dependency-cruiser.cjs   regras de arquitetura que o lint confere (TS)
 .github/workflows/ci.yml  lint, typecheck, testes, build e busca de segredos
+.gitattributes            mantém os scripts de shell em LF no Windows
 ```
 
 As regras de arquitetura usam o
@@ -243,6 +246,11 @@ Para testar uma mudança sem publicar, rode
 `claude --plugin-dir ./plugins/izi`. Antes de publicar, rode
 `claude plugin validate .`. Mudou um script de hook? Rode
 `bash tests/hooks.sh`; o CI também roda em Linux, Windows e macOS.
+
+Uma cópia instalada só muda quando o `version` muda, então reinstalar a
+mesma versão mantém os arquivos antigos. Para testar no app desktop uma
+mudança ainda não publicada, de uma branch, feche o app, apague
+`~/.claude/plugins/cache/izi` e reinstale.
 
 Os [evals](https://code.claude.com/docs/en/plugin-evals) rodam cada caso
 com e sem o plugin e mostram a diferença. Rode depois de mudar uma skill

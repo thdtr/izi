@@ -56,7 +56,9 @@ to open your app to check the result.
 Joining a project that already uses IZI? Its `.claude/settings.json`
 turns the plugin on but doesn't download it. Add the marketplace and run
 `claude plugin install izi@izi --scope project` once, or, in the desktop
-app, install `izi` choosing the project scope.
+app, install `izi` choosing the project scope. Then run `/izi:kickoff`:
+in a project that already has IZI, it only sets up your machine and
+leaves the committed files alone.
 
 ## How it works
 
@@ -103,6 +105,7 @@ docs/DESIGN.md            colors, typography and visual patterns (optional)
 docs/specs/<slug>.md      one spec per feature, written by /izi:spec
 .dependency-cruiser.cjs   architecture rules checked by lint (TS)
 .github/workflows/ci.yml  lint, typecheck, tests, build and secret scanning
+.gitattributes            keeps shell scripts in LF on Windows
 ```
 
 Architecture rules use
@@ -243,6 +246,11 @@ To try a change without publishing it, run
 `claude --plugin-dir ./plugins/izi`. Before publishing, run
 `claude plugin validate .`. After changing a hook script, run
 `bash tests/hooks.sh`; CI also runs it on Linux, Windows and macOS.
+
+An installed copy only changes when `version` changes, so reinstalling
+the same version keeps the old files. To try an unreleased change from a
+branch in the desktop app, close it, delete `~/.claude/plugins/cache/izi`,
+then reinstall.
 
 The [evals](https://code.claude.com/docs/en/plugin-evals) run each case
 with and without the plugin and show the difference. Run them after
