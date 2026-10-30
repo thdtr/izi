@@ -50,6 +50,8 @@ project's settings.
 | bun | `~/.bun/install/cache` | `registry.npmjs.org` |
 | Go | `~/go/pkg/mod`, `~/.cache/go-build` (macOS: `~/go/pkg/mod`, `~/Library/Caches/go-build`) | `proxy.golang.org`, `sum.golang.org` |
 | Python (uv) | `~/.cache/uv`, `~/.local/share/uv` | `pypi.org`, `files.pythonhosted.org` |
+| Dart/Flutter (pub) | `~/.pub-cache`, plus the Flutter SDK's `bin/cache` the first time it downloads artifacts | `pub.dev`, `storage.googleapis.com` |
+| PHP (Composer) | `~/.cache/composer` or `~/.composer/cache` (macOS: `~/Library/Caches/composer`) | `repo.packagist.org`; packages come from `codeload.github.com` |
 
 pnpm with `packageManager` pinned to a different version can hang
 silently in the sandbox: match the installed version to the one in
@@ -79,7 +81,28 @@ silently in the sandbox: match the installed version to the one in
 | TS + Jest | (same) | replace vitest with `pnpm exec jest --findRelatedTests --passWithNoTests $IZI_CHANGED` | |
 | Go | `gofmt -w` | `go vet ./... && go test ./...` | `go` |
 | Python (ruff + pytest) | `ruff format` | `ruff check $IZI_CHANGED && pytest -q -x` | `py` |
+| Dart/Flutter | `dart format` | `dart analyze --fatal-infos && flutter test` (pure Dart: `dart test`) | `dart` |
+| PHP (Pint + PHPStan + Pest) | `vendor/bin/pint` | `vendor/bin/phpstan analyse --no-progress $IZI_CHANGED && vendor/bin/pest` (PHPUnit: `vendor/bin/phpunit`) | `php` |
 
 Replace `pnpm exec` with the runner of the project's package manager
 (`npx --no-install`, `yarn`, `bunx`). Short output saves tokens: prefer
 quiet reporters (`--reporter=dot`, `-q`).
+
+## More than one stack
+
+A repository with stacks in their own directories (say an API and a
+mobile app) keeps one quick gate, so a change in one stack doesn't run
+the other's tests:
+
+- Copy `templates/izi-check.sh` and `templates/izi-format.sh` to
+  `scripts/` and fill one line per stack with the commands from the
+  table above. Each check runs inside its directory, with `IZI_CHANGED`
+  holding only that stack's files, relative to it.
+- `env`: `IZI_CHECK` = `scripts/izi-check.sh`, `IZI_FORMAT` =
+  `scripts/izi-format.sh`, `IZI_CODE_EXT` = every stack's extensions.
+- Full gate in `AGENTS.md`: `scripts/izi-check.sh --all`, one command,
+  so it needs no `cd` in the sandbox.
+- CI: one job per stack, running `scripts/izi-check.sh <stack>`. Don't
+  filter by `paths` at the workflow level: a required check that gets
+  skipped stays pending and blocks the merge.
+- Sandbox: the `allowWrite` and `allowedDomains` of every stack.
