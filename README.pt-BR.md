@@ -15,7 +15,7 @@ com Next.js). Se o projeto for em Go, Python ou outra linguagem, o
 |---|---|
 | [Claude Code](https://code.claude.com/docs/en/quickstart), versão atual | É onde o IZI roda |
 | [git](https://git-scm.com/) | Branches e commits |
-| [jq](https://jqlang.org/) | Os hooks do IZI leem o JSON que o Claude Code manda para eles |
+| [jq](https://jqlang.org/) | Os hooks do IZI leem o JSON que o Claude Code manda para eles. Sem ele, a formatação, o quick gate e a busca por segredos são pulados com um aviso |
 | [GitHub CLI (`gh`)](https://cli.github.com/) | Abrir PR e acompanhar o CI. Depois de instalar, rode `gh auth login` e [`gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git) |
 | [bubblewrap](https://github.com/containers/bubblewrap) e [socat](http://www.dest-unreach.org/socat/) | Só no Linux. O [sandbox do Claude Code](https://code.claude.com/docs/en/sandboxing) precisa deles |
 | [gitleaks](https://github.com/gitleaks/gitleaks) (opcional) | Procura senhas e chaves antes de cada commit. Sem ele, essa checagem só roda no CI |
@@ -197,11 +197,13 @@ plugins/izi/
   hooks/       hooks.json
   scripts/     scripts dos hooks
   evals/       casos que medem o que o plugin acrescenta
+tests/hooks.sh                    testes dos scripts dos hooks
 ```
 
 Para testar uma mudança sem publicar, rode
 `claude --plugin-dir ./plugins/izi`. Antes de publicar, rode
-`claude plugin validate .`.
+`claude plugin validate .`. Mudou um script de hook? Rode
+`bash tests/hooks.sh`; o CI também roda em Linux, Windows e macOS.
 
 Os [evals](https://code.claude.com/docs/en/plugin-evals) rodam cada caso
 com e sem o plugin e mostram a diferença. Rode depois de mudar uma skill

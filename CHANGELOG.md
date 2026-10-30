@@ -3,6 +3,20 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.0.1 - 2026-10-30
+
+### Fixed
+
+- Windows: the quick gate let every change through and formatting never
+  ran when `jq.exe` was used inside Git Bash, because its output ends in
+  CRLF. The scripts now drop the `\r`, and `.gitattributes` keeps them
+  in LF.
+- Without `jq`, the hooks skip with a warning instead of blocking every
+  turn.
+- macOS: the quick gate never ran on the system's bash 3.2 (`mapfile`,
+  `sha1sum`).
+- Hook tests in `tests/hooks.sh`, run in CI on Linux, Windows and macOS.
+
 ## 1.0.0 - 2026-10-27
 
 First versioned release. Before it, every commit on `main` reached users

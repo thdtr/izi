@@ -1,0 +1,36 @@
+name: test
+
+# The hook scripts run on whatever bash the user has: Git Bash on Windows
+# (with the native jq.exe), bash 3.2 on macOS, bash 5 on Linux.
+
+on:
+  pull_request:
+    paths:
+      - "plugins/izi/scripts/**"
+      - "tests/**"
+      - ".gitattributes"
+      - ".github/workflows/test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "plugins/izi/scripts/**"
+      - "tests/**"
+
+jobs:
+  hooks:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - name: jq
+        run: command -v jq || choco install jq -y
+      - name: Hook tests
+        # macOS: /bin/bash is the 3.2 that ships with the system.
+        run: |
+          if [[ "$RUNNER_OS" == macOS ]]; then /bin/bash tests/hooks.sh; else bash tests/hooks.sh; fi

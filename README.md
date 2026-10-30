@@ -16,7 +16,7 @@ project's commands.
 |---|---|
 | [Claude Code](https://code.claude.com/docs/en/quickstart), current version | Where IZI runs |
 | [git](https://git-scm.com/) | Branches and commits |
-| [jq](https://jqlang.org/) | IZI's hooks parse the JSON that Claude Code sends them |
+| [jq](https://jqlang.org/) | IZI's hooks parse the JSON that Claude Code sends them. Without it, formatting, the quick gate and the secret scan are skipped with a warning |
 | [GitHub CLI (`gh`)](https://cli.github.com/) | Opening PRs and watching CI. After installing, run `gh auth login` and [`gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git) |
 | [bubblewrap](https://github.com/containers/bubblewrap) and [socat](http://www.dest-unreach.org/socat/) | Linux only. The [Claude Code sandbox](https://code.claude.com/docs/en/sandboxing) needs them |
 | [gitleaks](https://github.com/gitleaks/gitleaks) (optional) | Looks for passwords and keys before every commit. Without it, that check only runs in CI |
@@ -198,11 +198,13 @@ plugins/izi/
   hooks/       hooks.json
   scripts/     hook scripts
   evals/       cases that measure what the plugin adds
+tests/hooks.sh                    hook script tests
 ```
 
 To try a change without publishing it, run
 `claude --plugin-dir ./plugins/izi`. Before publishing, run
-`claude plugin validate .`.
+`claude plugin validate .`. After changing a hook script, run
+`bash tests/hooks.sh`; CI also runs it on Linux, Windows and macOS.
 
 The [evals](https://code.claude.com/docs/en/plugin-evals) run each case
 with and without the plugin and show the difference. Run them after
