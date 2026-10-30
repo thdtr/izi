@@ -16,6 +16,14 @@
 
 - <what not to reopen now>
 
+## Business rules
+
+Invariants whose violation loses money, data or trust. One line each,
+with where it came from (`file:line` or the old doc). The code and the
+tests are the truth; this is what review checks them against.
+
+- <Price always comes from the catalog, never from the client - src/orders/price.ts:12>
+
 ## Architecture decisions
 
 One line each: decision - reason (YYYY-MM-DD). Changed your mind? Strike

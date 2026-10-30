@@ -16,7 +16,8 @@ confirmation goes through `AskUserQuestion`, never by waiting for a
 free-text reply.
 
 Templates: `${CLAUDE_SKILL_DIR}/templates/`. Sandbox profile and
-per-stack commands: `${CLAUDE_SKILL_DIR}/reference/sandbox.md`.
+per-stack commands: `${CLAUDE_SKILL_DIR}/reference/sandbox.md`. Project
+that already has code: also `${CLAUDE_SKILL_DIR}/reference/adopt.md`.
 
 ## 1. Survey what already exists
 
@@ -70,7 +71,8 @@ deploy, rollback and production commands.
 ## 3. Write plan
 
 In one message, list every file to create or change and the decisions
-made; in the same turn, ask for a single confirmation with
+made (adopting: the inventory table from `adopt.md`, including what gets
+deleted); in the same turn, ask for a single confirmation with
 `AskUserQuestion`. Existing file: show the diff of what changes and never
 remove the user's content without saying so.
 
@@ -104,7 +106,9 @@ there).
 - `docs/PROJECT.md` from the template. Roadmap = shippable vertical
   slices, one per line, each with a kebab-case slug that will be its
   spec's slug; the first one is the walking skeleton (login + 1 real
-  screen + deploy + green CI). Never layer-by-layer steps.
+  screen + deploy + green CI), or, adopting, what `adopt.md` says. Never
+  layer-by-layer steps. Business rules: the critical invariants, with
+  their origin.
 - `docs/DESIGN.md` from the template, only if there is UI and the user
   wants it now.
 - Verifiable architecture (TS): `dependency-cruiser` as a devDependency,
@@ -134,5 +138,6 @@ or fewer:
   `typescript-lsp`, `gopls-lsp`, `pyright-lsp`);
 - if there is UI or a server: run `/run-skill-generator` once, so
   verification in the running app works;
-- suggested commit: `chore: set up izi workflow`;
+- suggested commit: `chore: set up izi workflow` (adopting: first
+  `chore: remove <workflow> artifacts` with only the deletions);
 - next step: `/izi:spec <first roadmap slug>`.

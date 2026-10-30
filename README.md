@@ -47,7 +47,11 @@ run:
 ```
 
 Kickoff reads what's already in the project and only asks about what's
-missing. Before creating any file, it shows you the list of what it's
+missing. In a project that used another workflow (Cursor rules, a plans
+folder, another agent's instructions), it lists each file and where its
+content goes: `AGENTS.md`, the business rules and roadmap in
+`docs/PROJECT.md`, or deletion. The deletion is its own commit, so you
+can undo it alone. Before creating any file, it shows you the list of what it's
 going to do and waits for your OK. At the end, it tells you whether to
 install the [LSP plugin](https://code.claude.com/docs/en/plugins/code-intelligence)
 for your language and run `/run-skill-generator`, which teaches Claude how

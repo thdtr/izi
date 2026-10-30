@@ -45,7 +45,12 @@ rode:
 /izi:kickoff
 ```
 
-O kickoff lê o que já existe no projeto e só pergunta o que falta. Antes
+O kickoff lê o que já existe no projeto e só pergunta o que falta. Num
+projeto que usava outro workflow (regras do Cursor, uma pasta de planos,
+instruções de outro agente), ele lista cada arquivo e para onde vai o
+conteúdo: `AGENTS.md`, as regras de negócio e o roadmap do
+`docs/PROJECT.md`, ou o lixo. A remoção vai num commit separado, para você
+poder desfazer só ela. Antes
 de criar qualquer arquivo, ele mostra a lista do que vai fazer e espera o
 seu ok. No fim, avisa se vale instalar o
 [plugin de LSP](https://code.claude.com/docs/en/plugins/code-intelligence)
