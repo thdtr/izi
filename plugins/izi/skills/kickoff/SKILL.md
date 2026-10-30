@@ -13,7 +13,9 @@ User context: $ARGUMENTS
 
 This skill runs on Opus only until the end of this turn. Every user
 confirmation goes through `AskUserQuestion`, never by waiting for a
-free-text reply.
+free-text reply. If `AskUserQuestion` isn't available (`claude -p`, another harness),
+ask the same questions as text, at most 4, and stop until they're
+answered.
 
 Templates: `${CLAUDE_SKILL_DIR}/templates/`. Sandbox profile and
 per-stack commands: `${CLAUDE_SKILL_DIR}/reference/sandbox.md`. Project
@@ -32,6 +34,10 @@ Existing skills, agents or hooks in `.claude/` that do the same job as
 izi's (spec, build, fix, ship, review, exploration, formatting, Stop
 gate): list them in the step 3 plan for removal, so nothing is
 duplicated.
+
+Linux and WSL2: the sandbox needs `bwrap` and `socat`. A missing one
+goes into the step 3 plan with its install command (`sudo apt install
+bubblewrap socat`, `sudo dnf install bubblewrap socat`).
 
 Native Windows (platform `win32`; WSL counts as Linux): check from Bash
 that `bash`, `jq` and `gh` resolve. A missing one goes into the step 3
@@ -96,11 +102,13 @@ there).
     the project doesn't use. Only settings that hold on every OS go
     here: the file is shared through git.
   - Keep `extraKnownMarketplaces` and `enabledPlugins` from the template.
-- `~/.claude/settings.json`, merged: the `sandbox.filesystem.allowWrite`
-  cache paths from the reference for this machine's OS. They depend on
-  the OS, so each person keeps their own; Claude Code merges them with
-  the project's settings. Native Windows has no sandbox: skip this, say
-  so, and suggest Auto mode to cut permission prompts.
+- `.claude/settings.local.json`, merged: the
+  `sandbox.filesystem.allowWrite` cache paths from the reference for this
+  machine's OS. They depend on the machine, so the file isn't committed
+  (the `.gitignore` template covers it), and Claude Code merges it with
+  the project's settings. Never edit `~/.claude/settings.json`. Native
+  Windows has no sandbox: skip this, say so, and suggest Auto mode to cut
+  permission prompts.
 - `.claude/agents/Explore.md` from the template (exploration on Haiku).
 - `.claude/rules/tests.md` and, if there is UI, `.claude/rules/ui.md`:
   fill in the `<...>` and adjust `paths:` to the real structure.
