@@ -23,6 +23,12 @@ Claude Code merges with the project's settings.
   sandbox. A command can only reach servers it started itself.
 - Outside the project directory and TMPDIR, it only writes where
   `allowWrite` allows. `~/.npm` and `~/.cache` are blocked by default.
+- An `allowWrite` path has to exist already: the sandbox can't create
+  it. Missing ones need `! mkdir -p <path>`, run by the user.
+- `git rebase`, or checking out an older commit, across the commit that
+  added files under `.claude/` fails inside the sandbox (those paths are
+  write-protected) and can leave a detached HEAD. Prefer merge or
+  cherry-pick, or have the user run it with `!`.
 - Network: only `allowedDomains`. A host not on the list asks for
   confirmation in manual mode and is refused in auto mode.
 - `excludedCommands` matches on text: every command in the call has to
@@ -50,7 +56,7 @@ the project's settings.
 | bun | `~/.bun/install/cache` | `registry.npmjs.org` |
 | Go | `~/go/pkg/mod`, `~/.cache/go-build` (macOS: `~/go/pkg/mod`, `~/Library/Caches/go-build`) | `proxy.golang.org`, `sum.golang.org` |
 | Python (uv) | `~/.cache/uv`, `~/.local/share/uv` | `pypi.org`, `files.pythonhosted.org` |
-| Dart/Flutter (pub) | `~/.pub-cache`, plus the Flutter SDK's `bin/cache` the first time it downloads artifacts | `pub.dev`, `storage.googleapis.com` |
+| Dart/Flutter (pub) | `~/.pub-cache`, `~/.config/flutter`, `~/.dart-tool`, `~/.dartServer` and the Flutter SDK's `bin/cache`. The first `flutter` after installing the SDK builds its own tool inside the SDK: run `! flutter --version` once, outside the sandbox | `pub.dev`, `storage.googleapis.com` |
 | PHP (Composer) | `~/.cache/composer` or `~/.composer/cache` (macOS: `~/Library/Caches/composer`) | `repo.packagist.org`; packages come from `codeload.github.com` |
 
 pnpm with `packageManager` pinned to a different version can hang

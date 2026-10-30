@@ -3,6 +3,22 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.1 - 2026-10-30
+
+### Fixed
+
+Found while adopting a real Go and Flutter monorepo.
+
+- Kickoff gives a `! mkdir -p` line for sandbox cache folders that don't
+  exist yet: the sandbox only writes to paths that already exist.
+- The Dart/Flutter row lists every folder Flutter writes to
+  (`~/.config/flutter`, `~/.dart-tool`, `~/.dartServer`, the SDK's
+  `bin/cache`) and says to run `! flutter --version` once after
+  installing the SDK.
+- `AGENTS.md` and the sandbox reference warn that a rebase or an old
+  checkout across the commit that added `.claude/` fails in the sandbox;
+  use merge or cherry-pick, or run it with `!`.
+
 ## 1.6.0 - 2026-10-30
 
 ### Fixed
