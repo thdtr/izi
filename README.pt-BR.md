@@ -188,7 +188,9 @@ O IZI roda no Windows nativo, no terminal e no app desktop.
 
 - Instale o [Git for Windows](https://git-scm.com/download/win): os hooks
   do IZI rodam no Git Bash dele. Depois, instale o jq com
-  `winget install jqlang.jq`.
+  `winget install jqlang.jq`. Se o Claude Code não achar o Git Bash
+  sozinho, aponte a `CLAUDE_CODE_GIT_BASH_PATH` para o `bash.exe` dele
+  (normalmente `C:\Program Files\Git\bin\bash.exe`).
 - Os dois precisam estar no `PATH` das variáveis de ambiente do usuário
   ou do sistema. O app desktop não lê o perfil do PowerShell; depois de
   mudar o `PATH`, feche e abra o app de novo.

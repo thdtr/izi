@@ -40,9 +40,10 @@ for c in git sed grep sort cat tail tr cut rm mkdir dirname touch true; do
   chmod +x "$nojq_bin/$c"
 done
 
-payload() { # event, last message, stop_hook_active
-  printf '{"hook_event_name":"%s","cwd":%s,"last_assistant_message":"%s","stop_hook_active":%s}' \
-    "$1" "$("$real_jq" -Rn --arg p "$repo_native" '$p')" "$2" "${3:-false}"
+payload() { # event, last message, stop_hook_active, Bash/PowerShell command
+  "$real_jq" -cn --arg e "$1" --arg cwd "$repo_native" --arg m "$2" --argjson s "${3:-false}" \
+    --arg c "${4:-git commit -m x}" \
+    '{hook_event_name: $e, cwd: $cwd, last_assistant_message: $m, stop_hook_active: $s, tool_input: {command: $c}}'
 }
 
 # run <script> <stdin>; sets code, out, err. Extra env goes before the call.
@@ -60,6 +61,18 @@ reset_gate
 IZI_CHECK=false run check.sh "$(payload PreToolUse done)"
 [[ $code == 2 && "$err" == *"Quick gate failed"* ]] && pass "failed gate blocks the commit" ||
   fail "failed gate blocks the commit" "code=$code err=$err"
+
+# The hook's "if" filter is best-effort: Claude Code runs the hook anyway
+# when a command has $VAR, $() or a loop. The script checks the command.
+reset_gate
+IZI_CHECK=false run check.sh "$(payload PreToolUse done false 'for c in a b; do command -v "$c" || echo x; done')"
+[[ $code == 0 && -z "$err" ]] && pass "command that isn't a commit is not gated" ||
+  fail "command that isn't a commit is not gated" "code=$code err=$err"
+
+reset_gate
+IZI_CHECK=false run check.sh "$(payload PreToolUse done false 'git add app.py && git -C . commit -m "$MSG"')"
+[[ $code == 2 ]] && pass "commit inside a compound command is gated" ||
+  fail "commit inside a compound command is gated" "code=$code err=$err"
 
 reset_gate
 IZI_CHECK=false run check.sh "$(payload Stop done)"
@@ -92,6 +105,22 @@ PATH="$crlf_bin:$PATH" IZI_CHECK=false run check.sh "$(payload PreToolUse done)"
 PATH="$nojq_bin" IZI_CHECK=false run check.sh "$(payload Stop done)"
 [[ $code == 0 && -z "$out" && "$err" == *"jq not found"* ]] && pass "without jq the gate is skipped with a warning" ||
   fail "without jq the gate is skipped with a warning" "code=$code err=$err"
+
+# --- secrets.sh -----------------------------------------------------------
+
+# gitleaks that always finds a secret.
+leaks_bin="$tmp/leaks-bin"
+mkdir -p "$leaks_bin"
+printf '#!%s\necho "leak found"; exit 1\n' "$BASH" >"$leaks_bin/gitleaks"
+chmod +x "$leaks_bin/gitleaks"
+
+PATH="$leaks_bin:$PATH" run secrets.sh "$(payload PreToolUse done)"
+[[ $code == 2 && "$err" == *"Commit blocked"* ]] && pass "secret blocks the commit" ||
+  fail "secret blocks the commit" "code=$code err=$err"
+
+PATH="$leaks_bin:$PATH" run secrets.sh "$(payload PreToolUse done false 'echo "$HOME"')"
+[[ $code == 0 ]] && pass "secret scan skips commands that aren't a commit" ||
+  fail "secret scan skips commands that aren't a commit" "code=$code err=$err"
 
 # --- format.sh ------------------------------------------------------------
 
