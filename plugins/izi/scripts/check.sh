@@ -18,11 +18,20 @@ set -uo pipefail
 
 [[ -n "${IZI_CHECK:-}" ]] || exit 0
 
+# Without jq the hooks can't read the payload: skip with a warning instead
+# of blocking every turn.
+if ! command -v jq >/dev/null 2>&1; then
+  echo "izi: jq not found, quick gate skipped. Install it: https://jqlang.org/download/" >&2
+  exit 0
+fi
+# jq.exe inside Git Bash ends lines with CRLF; the \r would break paths.
+jqr() { jq -r "$@" | tr -d '\r'; }
+
 input="$(cat)"
-event="$(jq -r '.hook_event_name // empty' <<<"$input")"
-cwd="$(jq -r '.cwd // empty' <<<"$input")"
-stop_hook_active="$(jq -r '.stop_hook_active // false' <<<"$input")"
-last_msg="$(jq -r '.last_assistant_message // empty' <<<"$input")"
+event="$(jqr '.hook_event_name // empty' <<<"$input")"
+cwd="$(jqr '.cwd // empty' <<<"$input")"
+stop_hook_active="$(jqr '.stop_hook_active // false' <<<"$input")"
+last_msg="$(jqr '.last_assistant_message // empty' <<<"$input")"
 
 # A turn that ends with a question to the user is not blocked: forcing it
 # to continue would make Claude "fix" things instead of asking.
@@ -38,7 +47,9 @@ if [[ -n "${IZI_CODE_EXT:-}" ]]; then
 fi
 
 # git status covers modified, staged and untracked files, and works without HEAD.
-mapfile -t changed < <(
+# A read loop, not mapfile: macOS still ships bash 3.2.
+changed=()
+while IFS= read -r f; do changed+=("$f"); done < <(
   git -c core.quotepath=off status --porcelain -uall 2>/dev/null \
     | sed -E 's/^.{3}//; s/.* -> //' \
     | grep -E "$ext_re" | sort -u
@@ -51,7 +62,7 @@ for f in "${changed[@]}"; do [[ -f "$f" ]] && existing+=("$f"); done
 git_dir="$(git rev-parse --absolute-git-dir)"
 ok_file="$git_dir/izi-check-ok"
 fail_file="$git_dir/izi-check-fail"
-hash="$( { printf '%s\n' "${changed[@]}"; ((${#existing[@]})) && cat -- "${existing[@]}"; printf '%s' "$IZI_CHECK"; } 2>/dev/null | sha1sum | cut -d' ' -f1)"
+hash="$( { printf '%s\n' "${changed[@]}"; ((${#existing[@]})) && cat -- "${existing[@]}"; printf '%s' "$IZI_CHECK"; } 2>/dev/null | git hash-object --stdin)"
 
 [[ "$hash" == "$(cat "$ok_file" 2>/dev/null)" ]] && exit 0
 # Nothing changed since the last block: let it through instead of spending

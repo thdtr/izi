@@ -8,7 +8,13 @@ set -uo pipefail
 
 [[ -n "${IZI_FORMAT:-}" ]] || exit 0
 
-file="$(jq -r '.tool_input.file_path // empty')"
+if ! command -v jq >/dev/null 2>&1; then
+  echo "izi: jq not found, formatting skipped. Install it: https://jqlang.org/download/" >&2
+  exit 0
+fi
+
+# tr: jq.exe inside Git Bash ends lines with CRLF.
+file="$(jq -r '.tool_input.file_path // empty' | tr -d '\r')"
 [[ -n "$file" && -f "$file" ]] || exit 0
 
 cd "${CLAUDE_PROJECT_DIR:-$(dirname "$file")}" || exit 0
