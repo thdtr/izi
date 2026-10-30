@@ -21,6 +21,8 @@ project's commands.
 | [bubblewrap](https://github.com/containers/bubblewrap) and [socat](http://www.dest-unreach.org/socat/) | Linux only. The [Claude Code sandbox](https://code.claude.com/docs/en/sandboxing) needs them |
 | [gitleaks](https://github.com/gitleaks/gitleaks) (optional) | Looks for passwords and keys before every commit. Without it, that check only runs in CI |
 
+On Windows, see [Windows and the desktop app](#windows-and-the-desktop-app).
+
 ## Install
 
 On your machine, once:
@@ -29,6 +31,11 @@ On your machine, once:
 claude plugin marketplace add thdtr/izi
 claude plugin install izi@izi
 ```
+
+In the desktop app, use **+** next to the prompt box, then **Add
+plugins**, in a local session. If `izi` isn't listed, run the two commands
+above once in a terminal: the terminal and the desktop app share the same
+plugin settings.
 
 In each project, new or already underway, open Claude in its folder and
 run:
@@ -43,6 +50,10 @@ going to do and waits for your OK. At the end, it tells you whether to
 install the [LSP plugin](https://code.claude.com/docs/en/plugins/code-intelligence)
 for your language and run `/run-skill-generator`, which teaches Claude how
 to open your app to check the result.
+
+Joining a project that already uses IZI? Its `.claude/settings.json`
+turns the plugin on but doesn't download it. Add the marketplace and run
+`claude plugin install izi@izi --scope project` once.
 
 ## How it works
 
@@ -68,7 +79,7 @@ starts with just the spec instead of dragging the whole interview along.
 | Situation | Use |
 |---|---|
 | Feature that involves a decision about data, permissions or UI | `/izi:spec`, then `/izi:build` and `/izi:ship` |
-| Small change that touches more than one file | [Plan mode](https://code.claude.com/docs/en/permission-modes) (`Shift+Tab`) and just ask |
+| Small change that touches more than one file | [Plan mode](https://code.claude.com/docs/en/permission-modes) (`Shift+Tab`, or the mode selector in the desktop app) and just ask |
 | Bug, broken test or one-off tweak | `/izi:fix "what's happening"` |
 | Trivial change, like a text tweak or a typo | Just ask |
 | Mechanical refactor across many files | [`/batch`](https://code.claude.com/docs/en/commands) |
@@ -174,11 +185,32 @@ of that:
 | "Yes, don't ask again" doesn't stick | Run `claude doctor` and delete the 0-byte files it lists |
 | A command you excluded still runs in the sandbox | Ask Claude to run that command on its own, without `cd`, pipes or `&&` |
 
+## Windows and the desktop app
+
+IZI runs on native Windows, in the terminal and in the desktop app.
+
+- Install [Git for Windows](https://git-scm.com/download/win): IZI's hooks
+  run in its Git Bash. Then install jq with `winget install jqlang.jq`.
+- Both have to be on the `PATH` in your user or system environment
+  variables. The desktop app doesn't read your PowerShell profile; after
+  changing the `PATH`, quit and reopen it.
+- Native Windows has no sandbox, so commands ask for permission more
+  often. Auto mode cuts most of those prompts.
+- Commits made through the PowerShell tool go through the same checks as
+  Bash, and the same permission rules apply.
+- In the desktop app, plugins load in local and SSH sessions, not in WSL
+  or cloud sessions. `/izi:` commands work the same way; switch modes with
+  the selector under the prompt box instead of `Shift+Tab`.
+- WSL2 also works and has the sandbox, like Linux. Use it from the
+  terminal, since the desktop app doesn't load plugins there. Keep the
+  repository inside WSL (`~/`), not under `/mnt/c`.
+
 ## Maintenance
 
 - To update IZI, open `/plugin`, go to Marketplaces, pick `izi`, then
-  Update marketplace. Projects set up by kickoff update on their own.
-  What changed in each version is in [CHANGELOG.md](CHANGELOG.md). More
+  Update marketplace. Auto-update is off by default for marketplaces like
+  this one; to turn it on, pick **Enable auto-update** on the same screen.
+  Each person does this on their own machine. What changed in each version is in [CHANGELOG.md](CHANGELOG.md). More
   in the [plugin docs](https://code.claude.com/docs/en/plugins/install).
 - When a new model comes out, run `/doctor prompt-audit` and delete the
   instructions the model already follows without being told. Extra

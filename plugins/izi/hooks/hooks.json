@@ -30,6 +30,24 @@
             "statusMessage": "izi: quick gate"
           }
         ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "PowerShell(git commit *)",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/secrets.sh\"",
+            "timeout": 60
+          },
+          {
+            "type": "command",
+            "if": "PowerShell(git commit *)",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/check.sh\"",
+            "timeout": 600,
+            "statusMessage": "izi: quick gate"
+          }
+        ]
       }
     ],
     "Stop": [
