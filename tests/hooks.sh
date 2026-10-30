@@ -65,7 +65,7 @@ IZI_CHECK=false run check.sh "$(payload PreToolUse done)"
 # The hook's "if" filter is best-effort: Claude Code runs the hook anyway
 # when a command has $VAR, $() or a loop. The script checks the command.
 reset_gate
-IZI_CHECK=false run check.sh "$(payload PreToolUse done false 'for c in a b; do command -v "$c" || echo x; done')"
+IZI_CHECK=false run check.sh "$(payload PreToolUse done false 'for c in bash git jq sed; do command -v "$c" >/dev/null || echo "FALTA: $c"; done; echo fim')"
 [[ $code == 0 && -z "$err" ]] && pass "command that isn't a commit is not gated" ||
   fail "command that isn't a commit is not gated" "code=$code err=$err"
 
