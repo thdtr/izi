@@ -4,7 +4,7 @@ description: Interviews you about a feature and writes docs/specs/<slug>.md with
 disable-model-invocation: true
 model: opus
 effort: high
-argument-hint: "feature name or description"
+argument-hint: "roadmap slug, #issue, or feature description (empty: show the roadmap)"
 ---
 
 # spec
@@ -17,11 +17,26 @@ free-text reply.
 
 ## 1. Context before asking
 
+No argument: list the `Roadmap` of `docs/PROJECT.md` with each item's
+status, taken from the specs: shipped (`docs/specs/<slug>.md` has
+`Status: shipped`), in progress (spec without it), or not started. Older
+roadmaps: `[x]` counts as shipped, and a numbered item matches the spec
+whose `Roadmap:` line names it. Ask with `AskUserQuestion` which one to
+spec, recommending the first one not started.
+
+Argument:
+
+- a roadmap slug: that item is the feature, and its slug is the spec's;
+- `#<n>`: an issue. Read it with `gh issue view <n>`, assign yourself
+  (`gh issue edit <n> --add-assignee @me`), so the other dev sees who
+  took it, and slug it from its title;
+- anything else: a description of the feature.
+
 Read `docs/PROJECT.md` and the code the feature touches (broad search:
 `Explore`). Pick the size of the process:
 
 - The diff fits in one sentence: not a feature. Say so and point to
-  `/izi:fix`.
+  `/izi:fix` (with the issue number, if it came from one).
 - One small slice with no data, permission or UX decision: say it
   doesn't need a spec and suggest plan mode (Shift+Tab) or just asking
   for it directly.
@@ -49,7 +64,8 @@ Slug: short kebab-case. Format:
 ```markdown
 # <Feature>
 
-Roadmap: <item from docs/PROJECT.md, if any>
+Roadmap: <slug of the roadmap item, if any>
+Issue: <#n, if it came from one>
 
 ## Problem
 ## Done when

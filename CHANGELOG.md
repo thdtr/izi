@@ -3,6 +3,30 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.3.0 - 2026-10-30
+
+### Added
+
+- `/izi:spec` with no argument shows the roadmap with each item's
+  status, taken from the specs, and suggests the next one.
+- GitHub issues, optional: `/izi:spec #42` and `/izi:fix #57` read the
+  issue and assign you; `/izi:ship` adds `Closes #<n>` to the PR. Claude
+  offers to open an issue for a problem outside the task, only with your
+  OK. Kickoff's settings allow `gh issue view/list` and ask before
+  `gh issue create/edit`.
+- README: "Working with two people".
+- Evals `spec-lists-roadmap-status` and `ship-leaves-project-alone`.
+
+### Changed
+
+- Roadmap items have a slug, the slug of their spec, and no checkbox: an
+  item is done when its spec says `Status: shipped`. `/izi:ship` no
+  longer edits `docs/PROJECT.md`, so two open PRs never conflict there.
+  Older roadmaps keep working: `[x]` counts as done, and a numbered item
+  matches the spec whose `Roadmap:` line names it.
+- `/izi:ship` merges the default branch into the feature branch before
+  pushing (never rebase; force push is denied).
+
 ## 1.2.0 - 2026-10-30
 
 ### Added
