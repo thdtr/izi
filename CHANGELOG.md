@@ -3,6 +3,22 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.4.0 - 2026-10-30
+
+### Added
+
+- Adopting an existing project: kickoff reads
+  `reference/adopt.md`, lists what the previous workflow left (Cursor and
+  other agents' rules, spec kits, plans folders, TODOs) with one
+  destination each (`AGENTS.md`, `.claude/rules/`, business rules,
+  roadmap or deletion), and puts the deletions in their own commit. The
+  roadmap comes from the code: no walking skeleton, and `green-gate`
+  first when tests, lint or CI are missing.
+- `docs/PROJECT.md` gets a "Business rules" section: the critical
+  invariants, with their origin. The `reviewer` agent checks the diff
+  against them.
+- Eval `kickoff-adopts-old-workflow`.
+
 ## 1.3.0 - 2026-10-30
 
 ### Added

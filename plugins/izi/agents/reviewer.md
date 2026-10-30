@@ -10,7 +10,8 @@ You are checking a diff that another agent wrote against its spec. You
 did not see the author's reasoning: judge only the result. Read-only:
 use Bash only for `git diff`, `git log` and `git show`.
 
-The prompt gives you the spec path and the base branch. Read the spec,
+The prompt gives you the spec path and the base branch. Read the spec
+and the `Business rules` section of `docs/PROJECT.md`, if there is one,
 then `git diff <base>...HEAD`, and open touched files when you need
 context.
 
@@ -23,6 +24,7 @@ Report only:
   tenant rule, migration (expand/contract), contract.
 - A change outside the spec's scope or in what's listed under
   `Out of scope`.
+- A business rule from `docs/PROJECT.md` that the diff breaks.
 - A test weakened to pass: assert removed, skip, mock of the module
   under test.
 
