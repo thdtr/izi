@@ -33,7 +33,7 @@ costs tokens in every session, so keep only what changes behavior. -->
 ## Sandbox
 
 - `EACCES`, `Read-only file system`, `Network is unreachable` or a blocked host in a command = sandbox limit, not a bug. Don't change code because of it: report the command and the path/host and propose the change in `.claude/settings.json`.
-- Files in `.claude/` only with Edit/Write, never through Bash.
+- Files in `.claude/` only with Edit/Write, never through Bash. For the same reason, `git rebase` or checking out an older commit across the commit that added `.claude/` fails in the sandbox: prefer merge or cherry-pick, or ask me to run it with `!`.
 - Untracked entries at protected paths (`.bashrc`, `.mcp.json`, `.claude/hooks`...) that are empty, read-only or character devices are sandbox masks: ignore them and don't mention them. Stage files by name; never `git add .` or `git add -A`.
 - Package manager caches are allowed per machine, in `.claude/settings.local.json` (`sandbox.filesystem.allowWrite`), which isn't committed. A cache write blocked by the sandbox: propose the line for that file.
 

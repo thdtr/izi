@@ -106,7 +106,9 @@ there).
   `sandbox.filesystem.allowWrite` cache paths from the reference for this
   machine's OS. They depend on the machine, so the file isn't committed
   (the `.gitignore` template covers it), and Claude Code merges it with
-  the project's settings. Never edit `~/.claude/settings.json`. Native
+  the project's settings. Never edit `~/.claude/settings.json`. The
+  sandbox can't create these folders: give the user one
+  `! mkdir -p <paths>` line for the ones that don't exist yet. Native
   Windows has no sandbox: skip this, say so, and suggest Auto mode to cut
   permission prompts.
 - `.claude/agents/Explore.md` from the template (exploration on Haiku).
