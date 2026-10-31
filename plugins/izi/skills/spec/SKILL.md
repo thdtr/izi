@@ -4,7 +4,7 @@ description: Interviews you about a feature and writes docs/specs/<slug>.md with
 disable-model-invocation: true
 model: opus
 effort: high
-argument-hint: "roadmap slug, #issue, or feature description (empty: show the roadmap)"
+argument-hint: "roadmap slug, #issue, or feature description (empty: roadmap and open issues)"
 ---
 
 # spec
@@ -19,12 +19,22 @@ answered.
 
 ## 1. Context before asking
 
-No argument: list the `Roadmap` of `docs/PROJECT.md` with each item's
-status, taken from the specs: shipped (`docs/specs/<slug>.md` has
-`Status: shipped`), in progress (spec without it), or not started. Older
-roadmaps: `[x]` counts as shipped, and a numbered item matches the spec
-whose `Roadmap:` line names it. Ask with `AskUserQuestion` which one to
-spec, recommending the first one not started.
+No argument: show what can be picked up next.
+
+- The `Roadmap` of `docs/PROJECT.md` with each item's status, taken from
+  the specs: shipped (`docs/specs/<slug>.md` has `Status: shipped`), in
+  progress (spec without it), or not started. Older roadmaps: `[x]`
+  counts as shipped, and a numbered item matches the spec whose
+  `Roadmap:` line names it.
+- The open issues, when the repository has a GitHub remote:
+  `gh issue list --state open --limit 20 --json number,title,assignees`,
+  with number, title and assignee (none = free). If `gh` fails or there
+  is no remote, leave this part out without comment.
+
+Ask with `AskUserQuestion` which one to spec, recommending the first
+roadmap item not started; the options hold up to 4, and anything else
+in the list can be typed. An issue picked here follows the `#<n>` path
+below.
 
 Argument:
 
