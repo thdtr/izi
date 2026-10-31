@@ -3,6 +3,14 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.4 - 2026-10-31
+
+### Fixed
+
+- `/izi:ship` ends with the next step, like the other commands: once CI
+  is green, and again after a merge it ran, it says `/clear` and then
+  `/izi:spec` to see what's next.
+
 ## 1.6.3 - 2026-10-31
 
 ### Changed

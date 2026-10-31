@@ -52,11 +52,13 @@ With a remote:
    timeout. Wait for the notification, don't keep polling.
 5. CI failed: read the log (`gh run view --log-failed`), fix via
    `izi:fix`, push, repeat. Green: share the PR link and the preview
-   link, if there is one.
+   link, if there is one, and say what comes after the merge: `/clear`,
+   then `/izi:spec` to see what's next.
 
 The merge is the user's call. Only run
 `gh pr merge --squash --delete-branch` if they ask; then
-`git switch main`, `git pull` and delete the local branch.
+`git switch main`, `git pull`, delete the local branch, and repeat the
+next step: `/clear`, then `/izi:spec`.
 
 ## 4. Production
 
