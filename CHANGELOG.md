@@ -3,6 +3,15 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.3 - 2026-10-31
+
+### Changed
+
+- `/izi:spec` with no argument also lists the open GitHub issues, with
+  who took each one, next to the roadmap. Picking an issue works like
+  `/izi:spec #<n>`. Without `gh` or a GitHub remote it shows only the
+  roadmap, as before.
+
 ## 1.6.2 - 2026-10-31
 
 ### Fixed

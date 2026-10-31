@@ -66,7 +66,7 @@ resto você revisa no PR.
 | Uma feature com decisão sobre dados, permissões ou tela | `/izi:spec`, depois `/izi:build` e `/izi:ship` |
 | Um bug, um teste quebrado ou um ajuste pontual | `/izi:fix "o que está acontecendo"` |
 | Trabalhar a partir de uma issue do GitHub | `/izi:spec #42` ou `/izi:fix #57` |
-| Ver o que vem a seguir no roadmap | `/izi:spec` sozinho |
+| Ver o que vem a seguir, no roadmap e nas issues abertas | `/izi:spec` sozinho |
 | Uma mudança pequena em poucos arquivos | [Plan mode](https://code.claude.com/docs/en/permission-modes) e peça direto |
 | Um erro de digitação ou de texto | Peça direto |
 

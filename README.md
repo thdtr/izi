@@ -65,7 +65,7 @@ You review everything else in the pull request.
 | A feature with a decision about data, permissions or UI | `/izi:spec`, then `/izi:build` and `/izi:ship` |
 | A bug, a failing test or a quick tweak | `/izi:fix "what is happening"` |
 | Working from a GitHub issue | `/izi:spec #42` or `/izi:fix #57` |
-| Seeing what's next on the roadmap | `/izi:spec` on its own |
+| Seeing what's next, on the roadmap and in open issues | `/izi:spec` on its own |
 | A small change across a few files | [Plan mode](https://code.claude.com/docs/en/permission-modes), then just ask |
 | A typo or a text change | Just ask |
 
