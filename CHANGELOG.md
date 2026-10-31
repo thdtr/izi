@@ -3,6 +3,14 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.2 - 2026-10-31
+
+### Fixed
+
+- `/izi:fix` pulls main before creating the `fix/` branch, like
+  `/izi:spec` already does. A fix no longer starts from an outdated local
+  main when someone else merged in the meantime.
+
 ## 1.6.1 - 2026-10-30
 
 ### Fixed

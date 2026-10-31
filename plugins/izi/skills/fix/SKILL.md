@@ -21,8 +21,9 @@ Target: $ARGUMENTS
   blocked host: that's the sandbox, not the code. State the command and
   the path/host and propose the change in `.claude/settings.json`; don't
   edit code.
-- On main: `git switch -c fix/<slug>`. Inside a feature in progress:
-  stay on its branch.
+- On main: `git pull` if there is a remote, then `git switch -c
+  fix/<slug>`, so the fix starts from the current main. Inside a
+  feature in progress: stay on its branch.
 
 ## 1. Bug: root cause before any edit
 
