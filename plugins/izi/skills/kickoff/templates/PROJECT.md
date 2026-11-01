@@ -36,7 +36,8 @@ live in `.dependency-cruiser.cjs`, which lint checks.
 
 Direction, not a backlog: the next vertical slices that can ship to
 production, in order. Each item's slug is the slug of its spec; an item
-is done when `docs/specs/<slug>.md` says `Status: shipped`, so nobody
+is done when its specs say `Status: shipped` (`docs/specs/<slug>.md`, or
+the specs whose `Roadmap:` line names it, when it was split), so nobody
 edits this list to mark progress. Bugs and small improvements go to
 issues, if the project uses them.
 

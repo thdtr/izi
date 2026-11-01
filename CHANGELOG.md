@@ -3,6 +3,16 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.5 - 2026-11-01
+
+### Fixed
+
+- A roadmap item split into several specs shows the right status in
+  `/izi:spec`. The status now counts every spec whose `Roadmap:` line
+  names the item, not only `docs/specs/<slug>.md`, so an item whose
+  specs all shipped no longer shows as not started, and nobody has to
+  edit the roadmap to fix it.
+
 ## 1.6.4 - 2026-10-31
 
 ### Fixed
