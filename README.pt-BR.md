@@ -90,7 +90,7 @@ busca no código roda no Haiku.
 
 Quem trabalha sozinho não nota diferença nenhuma. Quando alguém entra, o
 roadmap do `docs/PROJECT.md` continua sendo uma lista curta do que vem a
-seguir, e um item conta como feito quando a spec dele está com
+seguir, e um item conta como feito quando as specs dele estão com
 `Status: shipped`. Ninguém edita a lista, então os PRs não brigam por
 ela. Bugs e ideias vão para as issues do GitHub, e o Claude pergunta
 antes de abrir uma. Quem roda `/izi:spec #42` ou `/izi:fix #57` fica como

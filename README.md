@@ -89,7 +89,7 @@ search runs on Haiku.
 
 Nothing changes when you work alone. When someone joins, the roadmap in
 `docs/PROJECT.md` is still a short list of what comes next, and an item
-counts as done once its spec says `Status: shipped`. Nobody edits the
+counts as done once its specs say `Status: shipped`. Nobody edits the
 list, so pull requests don't clash over it. Bugs and ideas go to GitHub
 issues, and Claude asks before opening one. Whoever runs `/izi:spec #42`
 or `/izi:fix #57` is assigned the issue, and it closes when the pull

@@ -22,10 +22,12 @@ answered.
 No argument: show what can be picked up next.
 
 - The `Roadmap` of `docs/PROJECT.md` with each item's status, taken from
-  the specs: shipped (`docs/specs/<slug>.md` has `Status: shipped`), in
-  progress (spec without it), or not started. Older roadmaps: `[x]`
-  counts as shipped, and a numbered item matches the spec whose
-  `Roadmap:` line names it.
+  the specs. An item's specs are `docs/specs/<slug>.md` plus every spec
+  whose `Roadmap:` line names the item, so an item split into several
+  specs still adds up. Shipped: it has specs and all of them say
+  `Status: shipped`. In progress: some spec without it. Not started: no
+  spec. Older roadmaps: `[x]` counts as shipped, and a numbered item
+  matches the specs whose `Roadmap:` line names its number.
 - The open issues, when the repository has a GitHub remote:
   `gh issue list --state open --limit 20 --json number,title,assignees`,
   with number, title and assignee (none = free). If `gh` fails or there
