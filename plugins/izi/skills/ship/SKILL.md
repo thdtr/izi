@@ -47,7 +47,14 @@ With a remote:
    line summary, link to the spec, how it was verified, migrations and
    deploy order (if any), and review suggestions that weren't applied.
    The spec's `Issue:` line, or an `(#<n>)` in the branch's commits:
-   `Closes #<n>` in the body.
+   `Closes #<n>` in the body. Write the body with the Write tool to a
+   file outside the repository (the scratchpad or the system temp
+   folder) and run `gh pr create --title "..." --body-file <file>` on
+   one line: a multi-line body, backticks or `$(...)` in the command
+   keep it inside the sandbox, where `gh` can't reach the token.
+   `gh` answering HTTP 401 or "not logged in" inside the sandbox is that,
+   not a missing login: run the same command again with the sandbox off
+   (it asks first), never ask the user for `gh auth login`.
 4. `gh pr checks --watch` with `run_in_background`: CI outlasts the Bash
    timeout. Wait for the notification, don't keep polling.
 5. CI failed: read the log (`gh run view --log-failed`), fix via
