@@ -3,6 +3,18 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.7 - 2026-11-02
+
+### Fixed
+
+- `/izi:ship` no longer takes "no checks reported" as the end of CI.
+  Right after the push GitHub may not have registered the checks yet,
+  and `gh pr checks --watch` ended at once; the skill now runs it again
+  before reporting, and says so when the repository has no CI.
+- `/izi:ship` merges only with every check finished and green. A check
+  still running counted as fine when the change didn't seem to touch
+  it, and a pull request was merged with CI pending.
+
 ## 1.6.6 - 2026-11-02
 
 ### Fixed
