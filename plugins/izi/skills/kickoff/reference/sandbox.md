@@ -32,8 +32,9 @@ Claude Code merges with the project's settings.
 - Network: only `allowedDomains`. A host not on the list asks for
   confirmation in manual mode and is refused in auto mode.
 - `excludedCommands` matches on text: every command in the call has to
-  match; `cd`, a pipe into another command, a redirect to a file and
-  `$(...)` keep the call in the sandbox. `x *` matches `x` with or
+  match; `cd`, a pipe into another command, a redirect to a file,
+  `$(...)`, backticks and a multi-line argument keep the call in the
+  sandbox. `x *` matches `x` with or
   without arguments. An excluded command goes through the normal
   permission flow.
 - Prefer `allowWrite`/`allowedDomains` over excluding a whole command.
@@ -75,7 +76,7 @@ silently in the sandbox: match the installed version to the one in
 | Local database (Postgres/Redis in a container) | Tests that connect to it go in `excludedCommands` (e.g. `pnpm test *`), or use an in-process database in tests (PGlite, SQLite) and keep them in the sandbox |
 | Vercel CLI | Already `ask`; `allowedDomains`: `api.vercel.com`, `vercel.com` |
 | Stripe CLI | `excludedCommands`: `stripe listen *` (long-lived connection) |
-| gh | Already excluded for `pr`/`run`/`issue`: the token may be in the keyring, which the sandbox can't reach |
+| gh | Already excluded for `pr`/`run`/`issue`: the token may be in the keyring, which the sandbox can't reach. A body inline in the command keeps it in the sandbox (HTTP 401): use `--body-file` |
 | Signed commits (GPG/SSH) | `git commit *` in `excludedCommands` (the key agent is a blocked socket) |
 
 ## Format and gate commands per language

@@ -3,6 +3,19 @@
 Each version here is the `version` in `plugins/izi/.claude-plugin/plugin.json`.
 Installed copies update only when that number changes.
 
+## 1.6.6 - 2026-11-02
+
+### Fixed
+
+- `/izi:ship` no longer stops at HTTP 401 when opening the pull request.
+  A body written inline, with several lines or backticks, kept
+  `gh pr create` inside the sandbox, where `gh` can't reach the token in
+  the keyring, and Claude then asked the user to log in again. The body
+  now goes in `--body-file`, and a 401 inside the sandbox is retried
+  with the sandbox off instead of sending the user to `gh auth login`.
+  The `AGENTS.md` template and the sandbox reference say the same for
+  issues.
+
 ## 1.6.5 - 2026-11-01
 
 ### Fixed
