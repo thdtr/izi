@@ -56,14 +56,23 @@ With a remote:
    not a missing login: run the same command again with the sandbox off
    (it asks first), never ask the user for `gh auth login`.
 4. `gh pr checks --watch` with `run_in_background`: CI outlasts the Bash
-   timeout. Wait for the notification, don't keep polling.
+   timeout. Wait for the notification, don't keep polling. Right after
+   the push GitHub may not have registered the checks yet, and the
+   command ends at once with "no checks reported": that is not a result.
+   Run the same command again, a few times at most, since GitHub
+   registers them within seconds. A repository with no CI at all is the
+   only case where it stays that way: say so instead of calling the PR
+   green.
 5. CI failed: read the log (`gh run view --log-failed`), fix via
    `izi:fix`, push, repeat. Green: share the PR link and the preview
    link, if there is one, and say what comes after the merge: `/clear`,
    then `/izi:spec` to see what's next.
 
 The merge is the user's call. Only run
-`gh pr merge --squash --delete-branch` if they ask; then
+`gh pr merge --squash --delete-branch` if they ask, and only with every
+check finished and green (`gh pr checks` with nothing pending or
+failing). A check still running is not green: wait for it, even when
+the change doesn't seem to touch what it tests. Then
 `git switch main`, `git pull`, delete the local branch, and repeat the
 next step: `/clear`, then `/izi:spec`.
 
